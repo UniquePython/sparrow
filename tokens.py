@@ -20,7 +20,7 @@ class Token:
         self.end = end
 
     def __repr__(self):
-        return f"Token({self.kind}, {self.value!r})"
+        return f"Token => {self.kind}<{self.value!r}> spans [{self.start}, {self.end})"
 
 
 SINGLE_CHAR_TOKENS = {
