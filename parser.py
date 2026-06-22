@@ -1,4 +1,4 @@
-from ast_node import NumberLiteral
+from ast_node import BinaryExpr, NumberLiteral
 from tokens import Token, TokenKind
 
 BINDING_POWER = {
@@ -50,3 +50,22 @@ class Parser:
             return result
         else:
             raise ValueError(f"Illegal prefix {self.currToken()} found")
+
+    def parseExpr(self, min_bp: int = 0):
+        left = self.parsePrefix()
+
+        while True:
+            kind = self.currTokenKind()
+            if kind not in BINDING_POWER:
+                break
+            bp = BINDING_POWER[kind]
+            if bp < min_bp:
+                break
+
+            op = self.advance()
+            right = self.parseExpr(
+                bp + 1
+            )  # +1 because all four ops are left-associative
+            left = BinaryExpr(op.kind, left, right)
+
+        return left
