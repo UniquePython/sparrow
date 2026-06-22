@@ -1,6 +1,5 @@
-from ast_node import BinaryExpr, NumberLiteral
+from ast_node import BinaryExpr, BinaryOp, Expr, NumberLiteral
 from errors import SparrowRuntimeError
-from tokens import TokenKind
 
 
 def add(a, b):
@@ -20,23 +19,23 @@ def div(a, b):
 
 
 BINARY_OPS = {
-    TokenKind.PLUS: add,
-    TokenKind.MINUS: sub,
-    TokenKind.ASTERISK: mul,
-    TokenKind.FSLASH: div,
+    BinaryOp.ADD: add,
+    BinaryOp.SUB: sub,
+    BinaryOp.MUL: mul,
+    BinaryOp.DIV: div,
 }
 
 
-def evaluate(node):
+def evaluate(node: Expr) -> int:
     if isinstance(node, NumberLiteral):
         return node.value
     elif isinstance(node, BinaryExpr):
         left = evaluate(node.left)
         right = evaluate(node.right)
 
-        if node.operator == TokenKind.FSLASH and right == 0:
+        if node.operator == BinaryOp.DIV and right == 0:
             raise SparrowRuntimeError(
-                "Found illegal divisor 0", node.right.start, node.right.end
+                "Cannot divide by 0", node.right.start, node.right.end
             )
 
         op = BINARY_OPS[node.operator]

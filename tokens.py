@@ -34,3 +34,14 @@ SINGLE_CHAR_TOKENS = {
     "(": TokenKind.LPAREN,
     ")": TokenKind.RPAREN,
 }
+
+TOKEN_DISPLAY = {
+    TokenKind.PLUS: "+",
+    TokenKind.MINUS: "-",
+    TokenKind.ASTERISK: "*",
+    TokenKind.FSLASH: "/",
+    TokenKind.LPAREN: "(",
+    TokenKind.RPAREN: ")",
+    TokenKind.NUMBER: "number",
+    TokenKind.EOF: "end of file",
+}

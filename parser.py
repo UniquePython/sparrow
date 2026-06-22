@@ -1,12 +1,19 @@
-from ast_node import BinaryExpr, NumberLiteral
+from ast_node import BinaryExpr, BinaryOp, Expr, NumberLiteral
 from errors import SparrowParseError
-from tokens import Token, TokenKind
+from tokens import TOKEN_DISPLAY, Token, TokenKind
 
 BINDING_POWER = {
     TokenKind.PLUS: 1,
     TokenKind.MINUS: 1,
     TokenKind.ASTERISK: 3,
     TokenKind.FSLASH: 3,
+}
+
+TOKEN_TO_BINARY_OP = {
+    TokenKind.PLUS: BinaryOp.ADD,
+    TokenKind.MINUS: BinaryOp.SUB,
+    TokenKind.ASTERISK: BinaryOp.MUL,
+    TokenKind.FSLASH: BinaryOp.DIV,
 }
 
 
@@ -31,7 +38,7 @@ class Parser:
             return self.advance()
         else:
             raise SparrowParseError(
-                f"Expected token of kind {kind.name} but found {self.currToken().kind.name}, i.e. {self.currToken().value!r} instead",
+                f"Expected {TOKEN_DISPLAY[kind]!r} but got {TOKEN_DISPLAY[self.currTokenKind()]!r} instead",
                 self.currToken().start,
                 self.currToken().end,
             )
@@ -74,7 +81,7 @@ class Parser:
                 bp + 1
             )  # +1 because all four ops are left-associative
             left = BinaryExpr(
-                operator=op.kind,
+                operator=TOKEN_TO_BINARY_OP[op.kind],
                 left=left,
                 right=right,
                 start=left.start,
@@ -91,7 +98,7 @@ def parse(tokens: list[Token]):
     return ast
 
 
-def pretty(node, prefix="", is_root=True, is_last=True):
+def pretty(node: Expr, prefix="", is_root=True, is_last=True) -> None:
     if is_root:
         connector = ""
     elif not is_root and is_last:
