@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from typing import Optional, Union
 
 
 class TokenKind(Enum):
@@ -13,7 +14,9 @@ class TokenKind(Enum):
 
 
 class Token:
-    def __init__(self, kind, value, start, end):
+    def __init__(
+        self, kind: TokenKind, value: Optional[Union[str, int]], start: int, end: int
+    ):
         self.kind = kind
         self.value = value
         self.start = start
