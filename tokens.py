@@ -8,6 +8,7 @@ class TokenKind(Enum):
     MINUS = auto()
     ASTERISK = auto()
     FSLASH = auto()
+    PERCENT = auto()
     LPAREN = auto()
     RPAREN = auto()
     EOF = auto()
@@ -31,6 +32,7 @@ SINGLE_CHAR_TOKENS = {
     "-": TokenKind.MINUS,
     "*": TokenKind.ASTERISK,
     "/": TokenKind.FSLASH,
+    "%": TokenKind.PERCENT,
     "(": TokenKind.LPAREN,
     ")": TokenKind.RPAREN,
 }
@@ -40,6 +42,7 @@ TOKEN_DISPLAY = {
     TokenKind.MINUS: "-",
     TokenKind.ASTERISK: "*",
     TokenKind.FSLASH: "/",
+    TokenKind.PERCENT: "%",
     TokenKind.LPAREN: "(",
     TokenKind.RPAREN: ")",
     TokenKind.NUMBER: "number",

@@ -8,6 +8,7 @@ class BinaryOp(Enum):
     SUB = auto()
     MUL = auto()
     DIV = auto()
+    MOD = auto()
 
 
 class UnaryOp(Enum):

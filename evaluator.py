@@ -18,6 +18,10 @@ def div(a: int, b: int) -> int:
     return int(a / b)
 
 
+def mod(a: int, b: int) -> int:
+    return a - div(a, b) * b
+
+
 def neg(x: int) -> int:
     return -x
 
@@ -27,6 +31,7 @@ BINARY_OPS = {
     BinaryOp.SUB: sub,
     BinaryOp.MUL: mul,
     BinaryOp.DIV: div,
+    BinaryOp.MOD: mod,
 }
 
 UNARY_OPS = {
@@ -42,7 +47,7 @@ def evaluate(node: Expr) -> int:
         left = evaluate(node.left)
         right = evaluate(node.right)
 
-        if node.operator == BinaryOp.DIV and right == 0:
+        if node.operator in {BinaryOp.DIV, BinaryOp.MOD} and right == 0:
             raise SparrowRuntimeError(
                 "Cannot divide by 0", node.right.start, node.right.end
             )

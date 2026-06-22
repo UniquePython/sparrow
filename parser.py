@@ -7,6 +7,7 @@ INFIX_BINDING_POWER = {
     TokenKind.MINUS: 1,
     TokenKind.ASTERISK: 3,
     TokenKind.FSLASH: 3,
+    TokenKind.PERCENT: 3,
 }
 
 PREFIX_BINDING_POWER = {
@@ -18,6 +19,7 @@ TOKEN_TO_BINARY_OP = {
     TokenKind.MINUS: BinaryOp.SUB,
     TokenKind.ASTERISK: BinaryOp.MUL,
     TokenKind.FSLASH: BinaryOp.DIV,
+    TokenKind.PERCENT: BinaryOp.MOD,
 }
 
 TOKEN_TO_UNARY_OP = {
