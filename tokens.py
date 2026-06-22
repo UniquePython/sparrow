@@ -22,7 +22,7 @@ class Token:
         self.start = start
         self.end = end
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Token => {self.kind}<{self.value!r}> spans [{self.start}, {self.end})"
 
 
