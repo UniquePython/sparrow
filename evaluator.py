@@ -2,19 +2,19 @@ from ast_node import BinaryExpr, BinaryOp, Expr, NumberLiteral
 from errors import SparrowRuntimeError
 
 
-def add(a, b):
+def add(a: int, b: int) -> int:
     return a + b
 
 
-def sub(a, b):
+def sub(a: int, b: int) -> int:
     return a - b
 
 
-def mul(a, b):
+def mul(a: int, b: int) -> int:
     return a * b
 
 
-def div(a, b):
+def div(a: int, b: int) -> int:
     return int(a / b)
 
 
