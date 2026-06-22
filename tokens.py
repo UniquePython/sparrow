@@ -1,5 +1,5 @@
+from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Optional, Union
 
 
 class TokenKind(Enum):
@@ -13,17 +13,17 @@ class TokenKind(Enum):
     EOF = auto()
 
 
+@dataclass(frozen=True)
 class Token:
-    def __init__(
-        self, kind: TokenKind, value: Optional[Union[str, int]], start: int, end: int
-    ):
-        self.kind = kind
-        self.value = value
-        self.start = start
-        self.end = end
+    kind: TokenKind
+    value: str | int | None
+    start: int
+    end: int
 
     def __repr__(self) -> str:
-        return f"Token => {self.kind}<{self.value!r}> spans [{self.start}, {self.end})"
+        return (
+            f"Token => {self.kind}" f"<{self.value!r}> spans [{self.start}, {self.end})"
+        )
 
 
 SINGLE_CHAR_TOKENS = {
