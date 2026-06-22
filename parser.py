@@ -1,4 +1,5 @@
 from ast_node import BinaryExpr, NumberLiteral
+from errors import SparrowParseError
 from tokens import Token, TokenKind
 
 BINDING_POWER = {
@@ -29,14 +30,16 @@ class Parser:
         if self.currTokenKind() == kind:
             return self.advance()
         else:
-            raise TypeError(
-                f"Expected token of kind {kind} but found {self.currToken().kind}, i.e. {self.currToken()} instead"
+            raise SparrowParseError(
+                f"Expected token of kind {kind.name} but found {self.currToken().kind.name}, i.e. {self.currToken().value!r} instead",
+                self.currToken().start,
+                self.currToken().end,
             )
 
     def parsePrefix(self):
         if self.currTokenKind() == TokenKind.NUMBER:
             tok = self.advance()
-            return NumberLiteral(tok.value)
+            return NumberLiteral(value=tok.value, start=tok.start, end=tok.end)
         elif self.currTokenKind() == TokenKind.LPAREN:
             # consume LPAREN
             self.advance()
@@ -49,7 +52,11 @@ class Parser:
 
             return result
         else:
-            raise ValueError(f"Illegal prefix {self.currToken()} found")
+            raise SparrowParseError(
+                f"Illegal prefix {self.currToken().value} found",
+                self.currToken().start,
+                self.currToken().end,
+            )
 
     def parseExpr(self, min_bp: int = 0):
         left = self.parsePrefix()
@@ -66,7 +73,13 @@ class Parser:
             right = self.parseExpr(
                 bp + 1
             )  # +1 because all four ops are left-associative
-            left = BinaryExpr(op.kind, left, right)
+            left = BinaryExpr(
+                operator=op.kind,
+                left=left,
+                right=right,
+                start=left.start,
+                end=right.end,
+            )
 
         return left
 

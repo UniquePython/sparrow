@@ -1,3 +1,4 @@
+from errors import SparrowLexError
 from tokens import SINGLE_CHAR_TOKENS, Token, TokenKind
 
 
@@ -32,7 +33,7 @@ def tokenize(src: str) -> list[Token]:
 
         # handle unrecognized characters
         else:
-            raise ValueError(f"Illegal character {char!r} at offset {cursor}")
+            raise SparrowLexError(f"Illegal character {char!r}", cursor, cursor + 1)
 
     tokens.append(Token(TokenKind.EOF, None, cursor, cursor))
     return tokens

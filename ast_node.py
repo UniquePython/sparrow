@@ -8,6 +8,9 @@ from tokens import TokenKind
 class NumberLiteral:
     value: int
 
+    start: int
+    end: int
+
     def __repr__(self) -> str:
         return f"NumberLiteral => {self.value}"
 
@@ -17,6 +20,9 @@ class BinaryExpr:
     operator: TokenKind
     left: Union[NumberLiteral, "BinaryExpr"]
     right: Union[NumberLiteral, "BinaryExpr"]
+
+    start: int
+    end: int
 
     def __repr__(self) -> str:
         return f"BinaryExpr => [{self.left}]->[{self.operator}]<-[{self.right}]"

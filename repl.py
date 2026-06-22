@@ -1,3 +1,4 @@
+from errors import SparrowError, formatError
 from evaluator import evaluate
 from parser import parse
 from tokenizer import tokenize
@@ -11,10 +12,13 @@ def main():
             break
         if not line.strip():
             continue
-        tokens = tokenize(line)
-        ast = parse(tokens)
-        result = evaluate(ast)
-        print(result)
+        try:
+            tokens = tokenize(line)
+            ast = parse(tokens)
+            result = evaluate(ast)
+            print(result)
+        except SparrowError as e:
+            print(formatError(e, line))
 
 
 if __name__ == "__main__":

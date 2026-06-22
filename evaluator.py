@@ -1,4 +1,5 @@
 from ast_node import BinaryExpr, NumberLiteral
+from errors import SparrowRuntimeError
 from tokens import TokenKind
 
 
@@ -15,8 +16,6 @@ def mul(a, b):
 
 
 def div(a, b):
-    if b == 0:
-        raise ZeroDivisionError("Found illegal divisor 0")
     return int(a / b)
 
 
@@ -34,5 +33,11 @@ def evaluate(node):
     elif isinstance(node, BinaryExpr):
         left = evaluate(node.left)
         right = evaluate(node.right)
+
+        if node.operator == TokenKind.FSLASH and right == 0:
+            raise SparrowRuntimeError(
+                "Found illegal divisor 0", node.right.start, node.right.end
+            )
+
         op = BINARY_OPS[node.operator]
         return op(left, right)
