@@ -1,5 +1,12 @@
 from tokens import Token, TokenKind
 
+BINDING_POWER = {
+    TokenKind.PLUS: 1,
+    TokenKind.MINUS: 1,
+    TokenKind.ASTERISK: 3,
+    TokenKind.FSLASH: 3,
+}
+
 
 class Parser:
     def __init__(self, tokens: list[Token]):
