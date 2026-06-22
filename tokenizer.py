@@ -33,9 +33,9 @@ def tokenize(src: str) -> list[Token]:
 
         # handle unrecognized characters
         else:
-            raise SparrowLexError(f"Illegal character {char!r}", cursor, cursor + 1)
+            raise SparrowLexError(f"Unexpected character {char!r}", cursor, cursor + 1)
 
-    tokens.append(Token(TokenKind.EOF, None, cursor, cursor))
+    tokens.append(Token(TokenKind.EOF, None, cursor, cursor + 1))
     return tokens
 
 

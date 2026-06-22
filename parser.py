@@ -59,10 +59,19 @@ class Parser:
 
             return result
         else:
+            tok = self.currToken()
+
+            if tok.kind == TokenKind.EOF:
+                raise SparrowParseError(
+                    "Unexpected end of input",
+                    tok.start,
+                    tok.end,
+                )
+
             raise SparrowParseError(
-                f"Illegal prefix {self.currToken().value} found",
-                self.currToken().start,
-                self.currToken().end,
+                f"Expected expression, found {tok.value!r}",
+                tok.start,
+                tok.end,
             )
 
     def parseExpr(self, min_bp: int = 0):

@@ -33,10 +33,14 @@ def offsetToLineCol(src: str, offset: int) -> tuple[int, int]:
 
 def formatError(err: SparrowError, src: str) -> str:
     line, col = offsetToLineCol(src, err.start)
+
     code = src.splitlines()[line - 1]
+
     nCarets = err.end - err.start
-    blankGutter = f"{'':>{len(str(line))}} | "
-    codeGutter = f"{line:>{len(str(line))}} | {code}"
+    gutterWidth = len(str(line))
+
+    blankGutter = f"{'':>{gutterWidth}} | "
+    codeGutter = f"{line:>{gutterWidth}} | {code}"
     caretGutter = blankGutter + " " * (col - 1)
 
     errMsg = ""
