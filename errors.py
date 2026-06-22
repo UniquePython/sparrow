@@ -36,7 +36,7 @@ def formatError(err: SparrowError, src: str) -> str:
 
     code = src.splitlines()[line - 1]
 
-    nCarets = err.end - err.start
+    nCarets = max(1, err.end - err.start)
     gutterWidth = len(str(line))
 
     blankGutter = f"{'':>{gutterWidth}} | "
