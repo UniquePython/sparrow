@@ -10,7 +10,11 @@ class BinaryOp(Enum):
     DIV = auto()
 
 
-Expr = Union["NumberLiteral", "BinaryExpr"]
+class UnaryOp(Enum):
+    NEG = auto()
+
+
+Expr = Union["NumberLiteral", "BinaryExpr", "UnaryExpr"]
 
 
 @dataclass(frozen=True)
@@ -25,5 +29,13 @@ class BinaryExpr:
     operator: BinaryOp
     left: Expr
     right: Expr
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class UnaryExpr:
+    operator: UnaryOp
+    operand: Expr
     start: int
     end: int

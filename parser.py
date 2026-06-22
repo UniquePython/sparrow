@@ -1,12 +1,16 @@
-from ast_node import BinaryExpr, BinaryOp, Expr, NumberLiteral
+from ast_node import BinaryExpr, BinaryOp, Expr, NumberLiteral, UnaryExpr, UnaryOp
 from errors import SparrowParseError
 from tokens import TOKEN_DISPLAY, Token, TokenKind
 
-BINDING_POWER = {
+INFIX_BINDING_POWER = {
     TokenKind.PLUS: 1,
     TokenKind.MINUS: 1,
     TokenKind.ASTERISK: 3,
     TokenKind.FSLASH: 3,
+}
+
+PREFIX_BINDING_POWER = {
+    TokenKind.MINUS: 5,
 }
 
 TOKEN_TO_BINARY_OP = {
@@ -14,6 +18,10 @@ TOKEN_TO_BINARY_OP = {
     TokenKind.MINUS: BinaryOp.SUB,
     TokenKind.ASTERISK: BinaryOp.MUL,
     TokenKind.FSLASH: BinaryOp.DIV,
+}
+
+TOKEN_TO_UNARY_OP = {
+    TokenKind.MINUS: UnaryOp.NEG,
 }
 
 
@@ -58,6 +66,16 @@ class Parser:
             self.expect(TokenKind.RPAREN)
 
             return result
+        elif self.currTokenKind() in PREFIX_BINDING_POWER:
+            opTok = self.advance()
+            bp = PREFIX_BINDING_POWER[opTok.kind]
+            operand = self.parseExpr(bp)
+            return UnaryExpr(
+                operator=TOKEN_TO_UNARY_OP[opTok.kind],
+                operand=operand,
+                start=opTok.start,
+                end=operand.end,
+            )
         else:
             tok = self.currToken()
 
@@ -79,9 +97,9 @@ class Parser:
 
         while True:
             kind = self.currTokenKind()
-            if kind not in BINDING_POWER:
+            if kind not in INFIX_BINDING_POWER:
                 break
-            bp = BINDING_POWER[kind]
+            bp = INFIX_BINDING_POWER[kind]
             if bp < min_bp:
                 break
 
@@ -122,6 +140,10 @@ def pretty(node: Expr, prefix="", is_root=True, is_last=True) -> None:
         child_prefix = prefix + ("" if is_root else ("    " if is_last else "│   "))
         pretty(node.left, child_prefix, is_root=False, is_last=False)
         pretty(node.right, child_prefix, is_root=False, is_last=True)
+    elif isinstance(node, UnaryExpr):
+        print(prefix + connector + node.operator.name)
+        child_prefix = prefix + ("" if is_root else ("    " if is_last else "│   "))
+        pretty(node.operand, child_prefix, is_root=False, is_last=True)
 
 
 if __name__ == "__main__":
