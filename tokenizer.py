@@ -15,6 +15,12 @@ def tokenize(src: str) -> list[Token]:
             cursor += 1
             continue
 
+        # skip comments
+        if char == "#":
+            while cursor < srcLen and src[cursor] != "\n":
+                cursor += 1
+            continue
+
         # handle multi-digit numbers
         elif "0" <= char <= "9":
             start = cursor
@@ -40,6 +46,6 @@ def tokenize(src: str) -> list[Token]:
 
 
 if __name__ == "__main__":
-    toks = tokenize("  1 +   (2  -  4)  * 8   / 16")
+    toks = tokenize("  1 +   (2  -  4)  * 8   / 16 # comment")
     for tok in toks:
         print(tok)
