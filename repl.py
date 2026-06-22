@@ -1,0 +1,21 @@
+from evaluator import evaluate
+from parser import parse
+from tokenizer import tokenize
+
+
+def main():
+    while True:
+        try:
+            line = input(">>> ")
+        except EOFError:
+            break
+        if not line.strip():
+            continue
+        tokens = tokenize(line)
+        ast = parse(tokens)
+        result = evaluate(ast)
+        print(result)
+
+
+if __name__ == "__main__":
+    main()
