@@ -25,7 +25,7 @@ class Parser:
     def currToken(self) -> Token:
         return self.tokens[self.pos]
 
-    def currTokenKind(self):
+    def currTokenKind(self) -> TokenKind:
         return self.currToken().kind
 
     def advance(self) -> Token:
@@ -43,7 +43,7 @@ class Parser:
                 self.currToken().end,
             )
 
-    def parsePrefix(self):
+    def parsePrefix(self) -> Expr:
         if self.currTokenKind() == TokenKind.NUMBER:
             tok = self.advance()
             return NumberLiteral(value=tok.value, start=tok.start, end=tok.end)
@@ -74,7 +74,7 @@ class Parser:
                 tok.end,
             )
 
-    def parseExpr(self, min_bp: int = 0):
+    def parseExpr(self, min_bp: int = 0) -> Expr:
         left = self.parsePrefix()
 
         while True:
@@ -100,7 +100,7 @@ class Parser:
         return left
 
 
-def parse(tokens: list[Token]):
+def parse(tokens: list[Token]) -> Expr:
     parser = Parser(tokens)
     ast = parser.parseExpr(0)
     parser.expect(TokenKind.EOF)
