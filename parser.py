@@ -69,3 +69,33 @@ class Parser:
             left = BinaryExpr(op.kind, left, right)
 
         return left
+
+
+def parse(tokens: list[Token]):
+    parser = Parser(tokens)
+    ast = parser.parseExpr(0)
+    parser.expect(TokenKind.EOF)
+    return ast
+
+
+def pretty(node, prefix="", is_root=True, is_last=True):
+    if is_root:
+        connector = ""
+    elif not is_root and is_last:
+        connector = "└── "
+    else:
+        connector = "├── "
+
+    if isinstance(node, NumberLiteral):
+        print(prefix + connector + str(node.value))
+    elif isinstance(node, BinaryExpr):
+        print(prefix + connector + node.operator.name)
+        child_prefix = prefix + ("" if is_root else ("    " if is_last else "│   "))
+        pretty(node.left, child_prefix, is_root=False, is_last=False)
+        pretty(node.right, child_prefix, is_root=False, is_last=True)
+
+
+if __name__ == "__main__":
+    from tokenizer import tokenize
+
+    pretty(parse(tokenize("1 + 2 * (3 - 4) / 5")))
