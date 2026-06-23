@@ -12,30 +12,31 @@ from ast_node import (
 )
 from environment import Environment
 from errors import SparrowRuntimeError
+from values import IntValue, Value
 
 
-def add(a: int, b: int) -> int:
-    return a + b
+def add(a: IntValue, b: IntValue) -> IntValue:
+    return IntValue(a.value + b.value)
 
 
-def sub(a: int, b: int) -> int:
-    return a - b
+def sub(a: IntValue, b: IntValue) -> IntValue:
+    return IntValue(a.value - b.value)
 
 
-def mul(a: int, b: int) -> int:
-    return a * b
+def mul(a: IntValue, b: IntValue) -> IntValue:
+    return IntValue(a.value * b.value)
 
 
-def div(a: int, b: int) -> int:
-    return int(a / b)
+def div(a: IntValue, b: IntValue) -> IntValue:
+    return IntValue(int(a.value / b.value))
 
 
-def mod(a: int, b: int) -> int:
-    return a - div(a, b) * b
+def mod(a: IntValue, b: IntValue) -> IntValue:
+    return IntValue(a.value - div(a, b).value * b.value)
 
 
-def neg(x: int) -> int:
-    return -x
+def neg(x: IntValue) -> IntValue:
+    return IntValue(-x.value)
 
 
 BINARY_OPS = {
@@ -51,15 +52,15 @@ UNARY_OPS = {
 }
 
 
-def evaluate(node: Expr, env: Environment) -> int:
+def evaluate(node: Expr, env: Environment) -> Value:
     if isinstance(node, NumberLiteral):
-        return node.value
+        return IntValue(node.value)
 
     elif isinstance(node, BinaryExpr):
         left = evaluate(node.left, env)
         right = evaluate(node.right, env)
 
-        if node.operator in {BinaryOp.DIV, BinaryOp.MOD} and right == 0:
+        if node.operator in {BinaryOp.DIV, BinaryOp.MOD} and right.value == 0:
             raise SparrowRuntimeError(
                 "Cannot divide by 0", node.right.start, node.right.end
             )
