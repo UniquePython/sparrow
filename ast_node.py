@@ -15,7 +15,7 @@ class UnaryOp(Enum):
     NEG = auto()
 
 
-Expr = Union["NumberLiteral", "BinaryExpr", "UnaryExpr"]
+Expr = Union["NumberLiteral", "BinaryExpr", "UnaryExpr", "IdentifierExpr"]
 
 
 @dataclass(frozen=True)
@@ -38,5 +38,30 @@ class BinaryExpr:
 class UnaryExpr:
     operator: UnaryOp
     operand: Expr
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class IdentifierExpr:
+    name: str
+    start: int
+    end: int
+
+
+Stmt = Union["AssignStmt", "ExprStmt"]
+
+
+@dataclass(frozen=True)
+class AssignStmt:
+    name: str
+    value: Expr
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class ExprStmt:
+    expr: Expr
     start: int
     end: int
