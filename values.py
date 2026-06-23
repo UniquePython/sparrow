@@ -6,10 +6,16 @@ from typing import Union
 class IntValue:
     value: int
 
+    def __repr__(self) -> str:
+        return f"{self.value}"
+
 
 @dataclass(frozen=True)
 class BoolValue:
     value: bool
+
+    def __repr__(self) -> str:
+        return "true" if self.value else "false"
 
 
 Value = Union["IntValue", "BoolValue"]

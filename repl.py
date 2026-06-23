@@ -23,6 +23,18 @@ def dumpAst(src: str) -> None:
     pretty(parse(tokenize(src)))
 
 
+def dumpVar(env: Environment, src: str) -> None:
+    if src in env.vars:
+        print(env.get(src, 0, 0))
+    else:
+        print(f"Failed to access undefined variable {src!r}")
+
+
+def dumpEnv(env: Environment) -> None:
+    for var, value in env.vars.items():
+        print(f"{var} = {value}")
+
+
 def main() -> None:
     env = Environment()
 
@@ -43,7 +55,7 @@ def main() -> None:
 
         try:
             if line == ":tokens":
-                print("usage: :tokens EXPR")
+                print("Usage: :tokens EXPR")
                 continue
 
             if line.startswith(":tokens "):
@@ -52,7 +64,7 @@ def main() -> None:
                 continue
 
             if line == ":ast":
-                print("usage: :ast EXPR")
+                print("Usage: :ast EXPR")
                 continue
 
             if line.startswith(":ast "):
@@ -60,9 +72,23 @@ def main() -> None:
                 dumpAst(src)
                 continue
 
+            if line == ":var":
+                print("Usage: :var IDENT")
+                continue
+
+            if line.startswith(":var "):
+                src = line.removeprefix(":var ")
+                dumpVar(env, src)
+                continue
+
+            if line.startswith(":env"):
+                src = line.removeprefix(":env")
+                dumpEnv(env)
+                continue
+
             if line.startswith(":"):
                 command = line.split(maxsplit=1)[0]
-                print(f"unknown command {command!r}")
+                print(f"Unknown command {command!r}")
                 continue
 
             outs = run(src, env)
