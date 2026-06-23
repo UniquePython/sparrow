@@ -1,13 +1,17 @@
+from environment import Environment
 from errors import SparrowError, formatError
-from evaluator import evaluate
-from parser import parse, pretty
+from evaluator import execute
+from parser import parse, parseProgram, pretty
 from tokenizer import tokenize
 
 
-def run(src: str) -> int:
+def run(src: str, env: Environment) -> list[int]:
     tokens = tokenize(src)
-    ast = parse(tokens)
-    return evaluate(ast)
+    ast = parseProgram(tokens)
+    out = []
+    for stmt in ast:
+        out.append(execute(stmt, env))
+    return out
 
 
 def dumpTokens(src: str) -> None:
@@ -20,6 +24,8 @@ def dumpAst(src: str) -> None:
 
 
 def main() -> None:
+    env = Environment()
+
     while True:
         try:
             line = input(">>> ")
@@ -59,7 +65,10 @@ def main() -> None:
                 print(f"unknown command {command!r}")
                 continue
 
-            print(run(src))
+            outs = run(src, env)
+            for out in outs:
+                if out is not None:
+                    print(out)
 
         except SparrowError as e:
             print(formatError(e, src))

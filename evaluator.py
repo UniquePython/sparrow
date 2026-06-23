@@ -82,4 +82,4 @@ def execute(stmt: Stmt, env: Environment) -> None:
         env.define(stmt.name, value)
 
     elif isinstance(stmt, ExprStmt):
-        pass
+        evaluate(stmt.expr, env)
