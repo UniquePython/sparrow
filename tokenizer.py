@@ -1,5 +1,10 @@
+from string import ascii_lowercase, ascii_uppercase, digits
+
 from errors import SparrowLexError
 from tokens import SINGLE_CHAR_TOKENS, Token, TokenKind
+
+IDENTIFIER_STARTING_CHARS = "_" + ascii_lowercase + ascii_uppercase
+IDENTIFIER_CHARS = IDENTIFIER_STARTING_CHARS + digits
 
 
 def tokenize(src: str) -> list[Token]:
@@ -31,6 +36,14 @@ def tokenize(src: str) -> list[Token]:
                 Token(TokenKind.NUMBER, int(src[start:cursor]), start, cursor)
             )
 
+        # handle identifiers
+        elif char in IDENTIFIER_STARTING_CHARS:
+            start = cursor
+            while cursor < srcLen and src[cursor] in IDENTIFIER_CHARS:
+                cursor += 1
+
+            tokens.append(Token(TokenKind.IDENTIFIER, src[start:cursor], start, cursor))
+
         # handle single-char tokens
         elif char in SINGLE_CHAR_TOKENS:
             kind = SINGLE_CHAR_TOKENS[char]
@@ -46,6 +59,6 @@ def tokenize(src: str) -> list[Token]:
 
 
 if __name__ == "__main__":
-    toks = tokenize("  1 +   (2  -  4)  * 8   / 16 # comment")
+    toks = tokenize("x = 5;")
     for tok in toks:
         print(tok)

@@ -3,7 +3,6 @@ from enum import Enum, auto
 
 
 class TokenKind(Enum):
-    NUMBER = auto()
     PLUS = auto()
     MINUS = auto()
     ASTERISK = auto()
@@ -11,6 +10,10 @@ class TokenKind(Enum):
     PERCENT = auto()
     LPAREN = auto()
     RPAREN = auto()
+    SEMICOLON = auto()
+    EQ = auto()
+    NUMBER = auto()
+    IDENTIFIER = auto()
     EOF = auto()
 
 
@@ -35,6 +38,8 @@ SINGLE_CHAR_TOKENS = {
     "%": TokenKind.PERCENT,
     "(": TokenKind.LPAREN,
     ")": TokenKind.RPAREN,
+    ";": TokenKind.SEMICOLON,
+    "=": TokenKind.EQ,
 }
 
 TOKEN_DISPLAY = {
@@ -45,6 +50,9 @@ TOKEN_DISPLAY = {
     TokenKind.PERCENT: "%",
     TokenKind.LPAREN: "(",
     TokenKind.RPAREN: ")",
+    TokenKind.SEMICOLON: ";",
+    TokenKind.EQ: "=",
     TokenKind.NUMBER: "number",
+    TokenKind.IDENTIFIER: "identifier",
     TokenKind.EOF: "end of file",
 }
