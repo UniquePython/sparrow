@@ -75,6 +75,9 @@ def evaluate(node: Expr, env: Environment) -> int:
     elif isinstance(node, IdentifierExpr):
         return env.get(node.name, node.start, node.end)
 
+    else:
+        raise AssertionError(f"unhandled node type: {type(node).__name__}")
+
 
 def execute(stmt: Stmt, env: Environment) -> None:
     if isinstance(stmt, AssignStmt):
@@ -83,3 +86,6 @@ def execute(stmt: Stmt, env: Environment) -> None:
 
     elif isinstance(stmt, ExprStmt):
         evaluate(stmt.expr, env)
+
+    else:
+        raise AssertionError(f"unhandled node type: {type(stmt).__name__}")

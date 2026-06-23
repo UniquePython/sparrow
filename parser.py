@@ -213,6 +213,9 @@ def pretty(node: Expr, prefix="", is_root=True, is_last=True) -> None:
     elif isinstance(node, IdentifierExpr):
         print(prefix + connector + node.name)
 
+    else:
+        raise AssertionError(f"unhandled node type: {type(node).__name__}")
+
 
 if __name__ == "__main__":
     from tokenizer import tokenize
