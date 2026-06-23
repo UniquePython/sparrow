@@ -191,30 +191,52 @@ def parseProgram(tokens: list[Token]) -> list[Stmt]:
 def pretty(node: Expr, prefix="", is_root=True, is_last=True) -> None:
     if is_root:
         connector = ""
-    elif not is_root and is_last:
+    elif is_last:
         connector = "└── "
     else:
         connector = "├── "
 
-    if isinstance(node, NumberLiteral):
-        print(prefix + connector + str(node.value))
+    child_prefix = prefix + ("" if is_root else ("    " if is_last else "│   "))
 
-    elif isinstance(node, BinaryExpr):
-        print(prefix + connector + node.operator.name)
-        child_prefix = prefix + ("" if is_root else ("    " if is_last else "│   "))
-        pretty(node.left, child_prefix, is_root=False, is_last=False)
-        pretty(node.right, child_prefix, is_root=False, is_last=True)
+    match node:
+        case NumberLiteral(value=value):
+            print(prefix + connector + str(value))
 
-    elif isinstance(node, UnaryExpr):
-        print(prefix + connector + node.operator.name)
-        child_prefix = prefix + ("" if is_root else ("    " if is_last else "│   "))
-        pretty(node.operand, child_prefix, is_root=False, is_last=True)
+        case IdentifierExpr(name=name):
+            print(prefix + connector + name)
 
-    elif isinstance(node, IdentifierExpr):
-        print(prefix + connector + node.name)
+        case UnaryExpr(operator=operator, operand=operand):
+            print(prefix + connector + operator.name)
+            pretty(
+                operand,
+                child_prefix,
+                is_root=False,
+                is_last=True,
+            )
 
-    else:
-        raise AssertionError(f"unhandled node type: {type(node).__name__}")
+        case BinaryExpr(
+            left=left,
+            operator=operator,
+            right=right,
+        ):
+            print(prefix + connector + operator.name)
+
+            pretty(
+                left,
+                child_prefix,
+                is_root=False,
+                is_last=False,
+            )
+
+            pretty(
+                right,
+                child_prefix,
+                is_root=False,
+                is_last=True,
+            )
+
+        case _:
+            raise AssertionError(f"unhandled node type: {type(node).__name__}")
 
 
 if __name__ == "__main__":

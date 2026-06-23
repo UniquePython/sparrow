@@ -53,40 +53,42 @@ UNARY_OPS = {
 
 
 def evaluate(node: Expr, env: Environment) -> Value:
-    if isinstance(node, NumberLiteral):
-        return IntValue(node.value)
+    match node:
+        case NumberLiteral(value=value):
+            return IntValue(value)
 
-    elif isinstance(node, BinaryExpr):
-        left = evaluate(node.left, env)
-        right = evaluate(node.right, env)
+        case BinaryExpr(left=left, operator=operator, right=right):
+            lhs = evaluate(left, env)
+            rhs = evaluate(right, env)
 
-        if node.operator in {BinaryOp.DIV, BinaryOp.MOD} and right.value == 0:
-            raise SparrowRuntimeError(
-                "Cannot divide by 0", node.right.start, node.right.end
-            )
+            if operator in {BinaryOp.DIV, BinaryOp.MOD} and rhs.value == 0:
+                raise SparrowRuntimeError(
+                    "Cannot divide by 0",
+                    right.start,
+                    right.end,
+                )
 
-        op = BINARY_OPS[node.operator]
-        return op(left, right)
+            return BINARY_OPS[operator](lhs, rhs)
 
-    elif isinstance(node, UnaryExpr):
-        operand = evaluate(node.operand, env)
-        op = UNARY_OPS[node.operator]
-        return op(operand)
+        case UnaryExpr(operator=operator, operand=operand):
+            value = evaluate(operand, env)
+            return UNARY_OPS[operator](value)
 
-    elif isinstance(node, IdentifierExpr):
-        return env.get(node.name, node.start, node.end)
+        case IdentifierExpr(name=name, start=start, end=end):
+            return env.get(name, start, end)
 
-    else:
-        raise AssertionError(f"unhandled node type: {type(node).__name__}")
+        case _:
+            raise AssertionError(f"unhandled node type: {type(node).__name__}")
 
 
 def execute(stmt: Stmt, env: Environment) -> None:
-    if isinstance(stmt, AssignStmt):
-        value = evaluate(stmt.value, env)
-        env.define(stmt.name, value)
+    match stmt:
+        case AssignStmt(name=name, value=value):
+            result = evaluate(value, env)
+            env.define(name, result)
 
-    elif isinstance(stmt, ExprStmt):
-        evaluate(stmt.expr, env)
+        case ExprStmt(expr=expr):
+            evaluate(expr, env)
 
-    else:
-        raise AssertionError(f"unhandled node type: {type(stmt).__name__}")
+        case _:
+            raise AssertionError(f"unhandled node type: {type(stmt).__name__}")
