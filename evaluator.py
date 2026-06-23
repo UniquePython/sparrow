@@ -1,4 +1,16 @@
-from ast_node import BinaryExpr, BinaryOp, Expr, NumberLiteral, UnaryExpr, UnaryOp
+from ast_node import (
+    AssignStmt,
+    BinaryExpr,
+    BinaryOp,
+    Expr,
+    ExprStmt,
+    IdentifierExpr,
+    NumberLiteral,
+    Stmt,
+    UnaryExpr,
+    UnaryOp,
+)
+from environment import Environment
 from errors import SparrowRuntimeError
 
 
@@ -39,13 +51,13 @@ UNARY_OPS = {
 }
 
 
-def evaluate(node: Expr) -> int:
+def evaluate(node: Expr, env: Environment) -> int:
     if isinstance(node, NumberLiteral):
         return node.value
 
     elif isinstance(node, BinaryExpr):
-        left = evaluate(node.left)
-        right = evaluate(node.right)
+        left = evaluate(node.left, env)
+        right = evaluate(node.right, env)
 
         if node.operator in {BinaryOp.DIV, BinaryOp.MOD} and right == 0:
             raise SparrowRuntimeError(
@@ -56,6 +68,18 @@ def evaluate(node: Expr) -> int:
         return op(left, right)
 
     elif isinstance(node, UnaryExpr):
-        operand = evaluate(node.operand)
+        operand = evaluate(node.operand, env)
         op = UNARY_OPS[node.operator]
         return op(operand)
+
+    elif isinstance(node, IdentifierExpr):
+        return env.get(node.name, node.start, node.end)
+
+
+def execute(stmt: Stmt, env: Environment) -> None:
+    if isinstance(stmt, AssignStmt):
+        value = evaluate(stmt.value, env)
+        env.define(stmt.name, value)
+
+    elif isinstance(stmt, ExprStmt):
+        pass
