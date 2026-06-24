@@ -1,3 +1,5 @@
+from typing import Union
+
 from ast_node import (
     AssignStmt,
     BinaryExpr,
@@ -173,13 +175,6 @@ class Parser:
             return ExprStmt(expr=value, start=value.start, end=value.end)
 
 
-def parse(tokens: list[Token]) -> Expr:
-    parser = Parser(tokens)
-    ast = parser.parseExpr(0)
-    parser.expect(TokenKind.EOF)
-    return ast
-
-
 def parseProgram(tokens: list[Token]) -> list[Stmt]:
     parser = Parser(tokens)
     statements = []
@@ -188,7 +183,7 @@ def parseProgram(tokens: list[Token]) -> list[Stmt]:
     return statements
 
 
-def pretty(node: Expr, prefix="", is_root=True, is_last=True) -> None:
+def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> None:
     if is_root:
         connector = ""
     elif is_last:
@@ -235,6 +230,18 @@ def pretty(node: Expr, prefix="", is_root=True, is_last=True) -> None:
                 is_last=True,
             )
 
+        case ExprStmt(expr=expr):
+            pretty(expr, prefix, is_root, is_last)
+
+        case AssignStmt(name=name, value=value):
+            print(prefix + connector + name)
+            pretty(
+                value,
+                child_prefix,
+                is_root=False,
+                is_last=True,
+            )
+
         case _:
             raise AssertionError(f"unhandled node type: {type(node).__name__}")
 
@@ -242,4 +249,4 @@ def pretty(node: Expr, prefix="", is_root=True, is_last=True) -> None:
 if __name__ == "__main__":
     from tokenizer import tokenize
 
-    pretty(parse(tokenize("x + 1")))
+    pretty(parseProgram(tokenize("x + 1;")))

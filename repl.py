@@ -1,7 +1,7 @@
 from environment import Environment
 from errors import SparrowError, formatError
 from evaluator import execute
-from parser import parse, parseProgram, pretty
+from parser import parseProgram, pretty
 from tokenizer import tokenize
 
 
@@ -20,7 +20,10 @@ def dumpTokens(src: str) -> None:
 
 
 def dumpAst(src: str) -> None:
-    pretty(parse(tokenize(src)))
+    tokens = tokenize(src)
+    ast = parseProgram(tokens)
+    for stmt in ast:
+        pretty(stmt)
 
 
 def dumpVar(env: Environment, src: str) -> None:
