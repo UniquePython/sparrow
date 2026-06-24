@@ -6,6 +6,11 @@ from tokens import SINGLE_CHAR_TOKENS, Token, TokenKind
 IDENTIFIER_STARTING_CHARS = "_" + ascii_lowercase + ascii_uppercase
 IDENTIFIER_CHARS = IDENTIFIER_STARTING_CHARS + digits
 
+KEYWORDS_TO_TOKENKIND: dict[str, TokenKind] = {
+    "true": TokenKind.TRUE,
+    "false": TokenKind.FALSE,
+}
+
 
 def tokenize(src: str) -> list[Token]:
     tokens = []
@@ -42,7 +47,14 @@ def tokenize(src: str) -> list[Token]:
             while cursor < srcLen and src[cursor] in IDENTIFIER_CHARS:
                 cursor += 1
 
-            tokens.append(Token(TokenKind.IDENTIFIER, src[start:cursor], start, cursor))
+            identifier = src[start:cursor]
+
+            if identifier in KEYWORDS_TO_TOKENKIND:
+                tokens.append(
+                    Token(KEYWORDS_TO_TOKENKIND[identifier], identifier, start, cursor)
+                )
+            else:
+                tokens.append(Token(TokenKind.IDENTIFIER, identifier, start, cursor))
 
         # handle single-char tokens
         elif char in SINGLE_CHAR_TOKENS:

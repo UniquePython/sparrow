@@ -14,6 +14,8 @@ class TokenKind(Enum):
     EQ = auto()
     NUMBER = auto()
     IDENTIFIER = auto()
+    TRUE = auto()
+    FALSE = auto()
     EOF = auto()
 
 
@@ -54,5 +56,7 @@ TOKEN_DISPLAY = {
     TokenKind.EQ: "=",
     TokenKind.NUMBER: "number",
     TokenKind.IDENTIFIER: "identifier",
+    TokenKind.TRUE: "true",
+    TokenKind.FALSE: "false",
     TokenKind.EOF: "end of file",
 }

@@ -15,12 +15,21 @@ class UnaryOp(Enum):
     NEG = auto()
 
 
-Expr = Union["NumberLiteral", "BinaryExpr", "UnaryExpr", "IdentifierExpr"]
+Expr = Union[
+    "NumberLiteral", "BooleanLiteral", "BinaryExpr", "UnaryExpr", "IdentifierExpr"
+]
 
 
 @dataclass(frozen=True)
 class NumberLiteral:
     value: int
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class BooleanLiteral:
+    value: bool
     start: int
     end: int
 

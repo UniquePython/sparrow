@@ -2,6 +2,7 @@ from ast_node import (
     AssignStmt,
     BinaryExpr,
     BinaryOp,
+    BooleanLiteral,
     Expr,
     ExprStmt,
     IdentifierExpr,
@@ -12,7 +13,7 @@ from ast_node import (
 )
 from environment import Environment
 from errors import SparrowRuntimeError
-from values import IntValue, Value
+from values import BooleanValue, IntValue, Value
 
 
 def add(a: IntValue, b: IntValue) -> IntValue:
@@ -56,6 +57,9 @@ def evaluate(node: Expr, env: Environment) -> Value:
     match node:
         case NumberLiteral(value=value):
             return IntValue(value)
+
+        case BooleanLiteral(value=value):
+            return BooleanValue(value)
 
         case BinaryExpr(left=left, operator=operator, right=right):
             lhs = evaluate(left, env)

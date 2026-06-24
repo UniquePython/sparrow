@@ -4,6 +4,7 @@ from ast_node import (
     AssignStmt,
     BinaryExpr,
     BinaryOp,
+    BooleanLiteral,
     Expr,
     ExprStmt,
     IdentifierExpr,
@@ -77,6 +78,11 @@ class Parser:
         if self.currTokenKind() == TokenKind.NUMBER:
             tok = self.advance()
             return NumberLiteral(value=tok.value, start=tok.start, end=tok.end)
+
+        elif self.currTokenKind() in {TokenKind.TRUE, TokenKind.FALSE}:
+            tok = self.advance()
+            value = tok.value == "true"
+            return BooleanLiteral(value=value, start=tok.start, end=tok.end)
 
         elif self.currTokenKind() == TokenKind.LPAREN:
             # consume LPAREN
@@ -196,6 +202,10 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
     match node:
         case NumberLiteral(value=value):
             print(prefix + connector + str(value))
+
+        case BooleanLiteral(value=value):
+            boolStr = "true" if value else "false"
+            print(prefix + connector + boolStr)
 
         case IdentifierExpr(name=name):
             print(prefix + connector + name)

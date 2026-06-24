@@ -11,11 +11,11 @@ class IntValue:
 
 
 @dataclass(frozen=True)
-class BoolValue:
+class BooleanValue:
     value: bool
 
     def __repr__(self) -> str:
         return "true" if self.value else "false"
 
 
-Value = Union["IntValue", "BoolValue"]
+Value = Union["IntValue", "BooleanValue"]
