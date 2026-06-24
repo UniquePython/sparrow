@@ -3,9 +3,10 @@ from errors import SparrowError, formatError
 from evaluator import execute
 from parser import parseProgram, pretty
 from tokenizer import tokenize
+from values import Value
 
 
-def run(src: str, env: Environment) -> list[int]:
+def run(src: str, env: Environment) -> list[Value]:
     tokens = tokenize(src)
     ast = parseProgram(tokens)
     out = []
@@ -96,8 +97,7 @@ def main() -> None:
 
             outs = run(src, env)
             for out in outs:
-                if out is not None:
-                    print(out)
+                print(out)
 
         except SparrowError as e:
             print(formatError(e, src))
