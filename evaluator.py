@@ -81,14 +81,16 @@ def evaluate(node: Expr, env: Environment) -> Value:
             raise AssertionError(f"unhandled node type: {type(node).__name__}")
 
 
-def execute(stmt: Stmt, env: Environment) -> None:
+def execute(stmt: Stmt, env: Environment) -> Value:
     match stmt:
         case AssignStmt(name=name, value=value):
             result = evaluate(value, env)
             env.define(name, result)
 
+            return result
+
         case ExprStmt(expr=expr):
-            evaluate(expr, env)
+            return evaluate(expr, env)
 
         case _:
             raise AssertionError(f"unhandled node type: {type(stmt).__name__}")
