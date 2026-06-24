@@ -86,8 +86,11 @@ def main() -> None:
                 continue
 
             if line.startswith(":env"):
-                src = line.removeprefix(":env")
                 dumpEnv(env)
+                continue
+
+            if line.startswith(":newenv"):
+                env = Environment()
                 continue
 
             if line.startswith(":"):
