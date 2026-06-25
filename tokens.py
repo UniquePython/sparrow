@@ -10,6 +10,8 @@ class TokenKind(Enum):
     PERCENT = auto()
     LPAREN = auto()
     RPAREN = auto()
+    LBRACE = auto()
+    RBRACE = auto()
     SEMICOLON = auto()
     EQ = auto()
     EQEQ = auto()
@@ -23,6 +25,7 @@ class TokenKind(Enum):
     IDENTIFIER = auto()
     TRUE = auto()
     FALSE = auto()
+    IF = auto()
     EOF = auto()
 
 
@@ -47,6 +50,8 @@ SINGLE_CHAR_TOKENS = {
     "%": TokenKind.PERCENT,
     "(": TokenKind.LPAREN,
     ")": TokenKind.RPAREN,
+    "{": TokenKind.LBRACE,
+    "}": TokenKind.RBRACE,
     ";": TokenKind.SEMICOLON,
 }
 
@@ -61,6 +66,12 @@ MULTI_CHAR_TOKENS = {
     "!=": TokenKind.NEQ,
 }
 
+KEYWORDS_TO_TOKENKIND: dict[str, TokenKind] = {
+    "true": TokenKind.TRUE,
+    "false": TokenKind.FALSE,
+    "if": TokenKind.IF,
+}
+
 TOKEN_DISPLAY = {
     TokenKind.PLUS: "+",
     TokenKind.MINUS: "-",
@@ -69,6 +80,8 @@ TOKEN_DISPLAY = {
     TokenKind.PERCENT: "%",
     TokenKind.LPAREN: "(",
     TokenKind.RPAREN: ")",
+    TokenKind.LBRACE: "{",
+    TokenKind.RBRACE: "}",
     TokenKind.SEMICOLON: ";",
     TokenKind.EQ: "=",
     TokenKind.LT: "<",
@@ -82,5 +95,6 @@ TOKEN_DISPLAY = {
     TokenKind.IDENTIFIER: "identifier",
     TokenKind.TRUE: "true",
     TokenKind.FALSE: "false",
+    TokenKind.IF: "if",
     TokenKind.EOF: "end of file",
 }

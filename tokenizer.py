@@ -1,15 +1,16 @@
 from string import ascii_lowercase, ascii_uppercase, digits
 
 from errors import SparrowLexError
-from tokens import MULTI_CHAR_TOKENS, SINGLE_CHAR_TOKENS, Token, TokenKind
+from tokens import (
+    KEYWORDS_TO_TOKENKIND,
+    MULTI_CHAR_TOKENS,
+    SINGLE_CHAR_TOKENS,
+    Token,
+    TokenKind,
+)
 
 IDENTIFIER_STARTING_CHARS = "_" + ascii_lowercase + ascii_uppercase
 IDENTIFIER_CHARS = IDENTIFIER_STARTING_CHARS + digits
-
-KEYWORDS_TO_TOKENKIND: dict[str, TokenKind] = {
-    "true": TokenKind.TRUE,
-    "false": TokenKind.FALSE,
-}
 
 
 def tokenize(src: str) -> list[Token]:
