@@ -11,7 +11,9 @@ def run(src: str, env: Environment) -> list[Value]:
     ast = parseProgram(tokens)
     out = []
     for stmt in ast:
-        out.append(execute(stmt, env))
+        res = execute(stmt, env)
+        if res is not None:
+            out.append(res)
     return out
 
 

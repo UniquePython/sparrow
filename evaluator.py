@@ -1,3 +1,5 @@
+from typing import Optional
+
 from ast_node import (
     AssignStmt,
     BinaryExpr,
@@ -6,6 +8,7 @@ from ast_node import (
     Expr,
     ExprStmt,
     IdentifierExpr,
+    IfStmt,
     NumberLiteral,
     Stmt,
     UnaryExpr,
@@ -115,7 +118,7 @@ def evaluate(node: Expr, env: Environment) -> Value:
             raise AssertionError(f"unhandled node type: {type(node).__name__}")
 
 
-def execute(stmt: Stmt, env: Environment) -> Value:
+def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
     match stmt:
         case AssignStmt(name=name, value=value):
             result = evaluate(value, env)
@@ -125,6 +128,19 @@ def execute(stmt: Stmt, env: Environment) -> Value:
 
         case ExprStmt(expr=expr):
             return evaluate(expr, env)
+
+        case IfStmt(condition=condition, body=body):
+            cond = evaluate(condition, env)
+            if not isinstance(cond, BooleanValue):
+                raise SparrowRuntimeError(
+                    f"Expected a boolean (true/false), found {repr(cond)!r} instead",
+                    condition.start,
+                    condition.end,
+                )
+
+            if cond.value:
+                for stmt in body:
+                    execute(stmt, env)
 
         case _:
             raise AssertionError(f"unhandled node type: {type(stmt).__name__}")

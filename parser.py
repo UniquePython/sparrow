@@ -8,6 +8,7 @@ from ast_node import (
     Expr,
     ExprStmt,
     IdentifierExpr,
+    IfStmt,
     NumberLiteral,
     Stmt,
     UnaryExpr,
@@ -168,11 +169,11 @@ class Parser:
         return left
 
     def parseStatement(self) -> Stmt:
+        # assignStmt
         if (
             self.currTokenKind() == TokenKind.IDENTIFIER
             and self.nextTokenKind() == TokenKind.EQ
         ):
-            # assignStmt
             identifierTok = self.advance()
             self.expect(TokenKind.EQ)
 
@@ -185,12 +186,36 @@ class Parser:
                 start=identifierTok.start,
                 end=value.end,
             )
+        # ifStmt
+        elif self.currTokenKind() == TokenKind.IF:
+            return self.parseIfStatement()
+        # exprStmt
         else:
-            # exprStmt
             value = self.parseExpr()
             self.expect(TokenKind.SEMICOLON)
 
             return ExprStmt(expr=value, start=value.start, end=value.end)
+
+    def parseIfStatement(self) -> IfStmt:
+        # consume IF token
+        startTok = self.advance()
+        # expect ( for start of condition
+        self.expect(TokenKind.LPAREN)
+        # parse the condition
+        condition = self.parseExpr()
+        # expect ) for end of condition and { for start of block
+        self.expect(TokenKind.RPAREN)
+        self.expect(TokenKind.LBRACE)
+        # parse statements until }
+        stmts = []
+        while self.currTokenKind() not in {TokenKind.RBRACE, TokenKind.EOF}:
+            stmts.append(self.parseStatement())
+        # expect closing }
+        endTok = self.expect(TokenKind.RBRACE)
+
+        return IfStmt(
+            condition=condition, body=tuple(stmts), start=startTok.start, end=endTok.end
+        )
 
 
 def parseProgram(tokens: list[Token]) -> list[Stmt]:
@@ -263,6 +288,12 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
                 is_root=False,
                 is_last=True,
             )
+
+        case IfStmt(condition=condition, body=body):
+            print(prefix + connector + "IF")
+            pretty(condition, child_prefix, is_root=False, is_last=len(body) == 0)
+            for i, stmt in enumerate(body):
+                pretty(stmt, child_prefix, is_root=False, is_last=i == len(body) - 1)
 
         case _:
             raise AssertionError(f"unhandled node type: {type(node).__name__}")
