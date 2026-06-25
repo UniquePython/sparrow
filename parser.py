@@ -17,15 +17,21 @@ from errors import SparrowParseError
 from tokens import TOKEN_DISPLAY, Token, TokenKind
 
 INFIX_BINDING_POWER = {
-    TokenKind.PLUS: 1,
-    TokenKind.MINUS: 1,
-    TokenKind.ASTERISK: 3,
-    TokenKind.FSLASH: 3,
-    TokenKind.PERCENT: 3,
+    TokenKind.EQEQ: 1,
+    TokenKind.NEQ: 1,
+    TokenKind.LT: 1,
+    TokenKind.LE: 1,
+    TokenKind.GT: 1,
+    TokenKind.GE: 1,
+    TokenKind.PLUS: 3,
+    TokenKind.MINUS: 3,
+    TokenKind.ASTERISK: 5,
+    TokenKind.FSLASH: 5,
+    TokenKind.PERCENT: 5,
 }
 
 PREFIX_BINDING_POWER = {
-    TokenKind.MINUS: 5,
+    TokenKind.MINUS: 7,
 }
 
 TOKEN_TO_BINARY_OP = {
@@ -34,6 +40,12 @@ TOKEN_TO_BINARY_OP = {
     TokenKind.ASTERISK: BinaryOp.MUL,
     TokenKind.FSLASH: BinaryOp.DIV,
     TokenKind.PERCENT: BinaryOp.MOD,
+    TokenKind.EQEQ: BinaryOp.EQEQ,
+    TokenKind.NEQ: BinaryOp.NEQ,
+    TokenKind.LT: BinaryOp.LT,
+    TokenKind.LE: BinaryOp.LE,
+    TokenKind.GT: BinaryOp.GT,
+    TokenKind.GE: BinaryOp.GE,
 }
 
 TOKEN_TO_UNARY_OP = {

@@ -40,12 +40,42 @@ def neg(x: IntValue) -> IntValue:
     return IntValue(-x.value)
 
 
+def eqeq(a: IntValue, b: IntValue) -> BooleanValue:
+    return BooleanValue(a.value == b.value)
+
+
+def neq(a: IntValue, b: IntValue) -> BooleanValue:
+    return BooleanValue(a.value != b.value)
+
+
+def lt(a: IntValue, b: IntValue) -> BooleanValue:
+    return BooleanValue(a.value < b.value)
+
+
+def le(a: IntValue, b: IntValue) -> BooleanValue:
+    return BooleanValue(a.value <= b.value)
+
+
+def gt(a: IntValue, b: IntValue) -> BooleanValue:
+    return BooleanValue(a.value > b.value)
+
+
+def ge(a: IntValue, b: IntValue) -> BooleanValue:
+    return BooleanValue(a.value >= b.value)
+
+
 BINARY_OPS = {
     BinaryOp.ADD: add,
     BinaryOp.SUB: sub,
     BinaryOp.MUL: mul,
     BinaryOp.DIV: div,
     BinaryOp.MOD: mod,
+    BinaryOp.EQEQ: eqeq,
+    BinaryOp.NEQ: neq,
+    BinaryOp.LT: lt,
+    BinaryOp.LE: le,
+    BinaryOp.GT: gt,
+    BinaryOp.GE: ge,
 }
 
 UNARY_OPS = {

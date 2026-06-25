@@ -9,6 +9,12 @@ class BinaryOp(Enum):
     MUL = auto()
     DIV = auto()
     MOD = auto()
+    EQEQ = auto()
+    NEQ = auto()
+    LT = auto()
+    LE = auto()
+    GT = auto()
+    GE = auto()
 
 
 class UnaryOp(Enum):
