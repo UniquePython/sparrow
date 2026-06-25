@@ -64,7 +64,7 @@ class IdentifierExpr:
     end: int
 
 
-Stmt = Union["AssignStmt", "ExprStmt"]
+Stmt = Union["AssignStmt", "ExprStmt", "IfStmt"]
 
 
 @dataclass(frozen=True)
@@ -78,5 +78,13 @@ class AssignStmt:
 @dataclass(frozen=True)
 class ExprStmt:
     expr: Expr
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class IfStmt:
+    condition: Expr
+    body: tuple[Stmt, ...]
     start: int
     end: int
