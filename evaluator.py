@@ -129,7 +129,7 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
         case ExprStmt(expr=expr):
             return evaluate(expr, env)
 
-        case IfStmt(condition=condition, body=body):
+        case IfStmt(condition=condition, ifBody=ifBody, elseBody=elseBody):
             cond = evaluate(condition, env)
             if not isinstance(cond, BooleanValue):
                 raise SparrowRuntimeError(
@@ -139,8 +139,12 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
                 )
 
             if cond.value:
-                for stmt in body:
+                for stmt in ifBody:
                     execute(stmt, env)
+            else:
+                if elseBody is not None:
+                    for stmt in elseBody:
+                        execute(stmt, env)
 
         case _:
             raise AssertionError(f"unhandled node type: {type(stmt).__name__}")

@@ -26,6 +26,7 @@ class TokenKind(Enum):
     TRUE = auto()
     FALSE = auto()
     IF = auto()
+    ELSE = auto()
     EOF = auto()
 
 
@@ -70,6 +71,7 @@ KEYWORDS_TO_TOKENKIND: dict[str, TokenKind] = {
     "true": TokenKind.TRUE,
     "false": TokenKind.FALSE,
     "if": TokenKind.IF,
+    "else": TokenKind.ELSE,
 }
 
 TOKEN_DISPLAY = {
@@ -96,5 +98,6 @@ TOKEN_DISPLAY = {
     TokenKind.TRUE: "true",
     TokenKind.FALSE: "false",
     TokenKind.IF: "if",
+    TokenKind.ELSE: "else",
     TokenKind.EOF: "end of file",
 }

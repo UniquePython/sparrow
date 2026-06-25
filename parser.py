@@ -198,7 +198,7 @@ class Parser:
 
     def parseIfStatement(self) -> IfStmt:
         # consume IF token
-        startTok = self.advance()
+        ifStartTok = self.advance()
         # expect ( for start of condition
         self.expect(TokenKind.LPAREN)
         # parse the condition
@@ -207,15 +207,41 @@ class Parser:
         self.expect(TokenKind.RPAREN)
         self.expect(TokenKind.LBRACE)
         # parse statements until }
-        stmts = []
+        ifStmts = []
         while self.currTokenKind() not in {TokenKind.RBRACE, TokenKind.EOF}:
-            stmts.append(self.parseStatement())
+            ifStmts.append(self.parseStatement())
         # expect closing }
-        endTok = self.expect(TokenKind.RBRACE)
+        ifEndTok = self.expect(TokenKind.RBRACE)
 
-        return IfStmt(
-            condition=condition, body=tuple(stmts), start=startTok.start, end=endTok.end
-        )
+        # check for 'else' block
+        if self.currTokenKind() == TokenKind.ELSE:
+            # consume ELSE token
+            self.advance()
+            # expect { for start of block
+            self.expect(TokenKind.LBRACE)
+            # parse statements until }
+            elseStmts = []
+            while self.currTokenKind() not in {TokenKind.RBRACE, TokenKind.EOF}:
+                elseStmts.append(self.parseStatement())
+            # expect closing }
+            elseEndTok = self.expect(TokenKind.RBRACE)
+
+            return IfStmt(
+                condition=condition,
+                ifBody=tuple(ifStmts),
+                elseBody=tuple(elseStmts),
+                start=ifStartTok.start,
+                end=elseEndTok.end,
+            )
+
+        else:
+            return IfStmt(
+                condition=condition,
+                ifBody=tuple(ifStmts),
+                elseBody=None,
+                start=ifStartTok.start,
+                end=ifEndTok.end,
+            )
 
 
 def parseProgram(tokens: list[Token]) -> list[Stmt]:
@@ -289,11 +315,20 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
                 is_last=True,
             )
 
-        case IfStmt(condition=condition, body=body):
+        case IfStmt(condition=condition, ifBody=ifBody, elseBody=elseBody):
             print(prefix + connector + "IF")
-            pretty(condition, child_prefix, is_root=False, is_last=len(body) == 0)
-            for i, stmt in enumerate(body):
-                pretty(stmt, child_prefix, is_root=False, is_last=i == len(body) - 1)
+            pretty(condition, child_prefix, is_root=False, is_last=len(ifBody) == 0)
+            for i, stmt in enumerate(ifBody):
+                pretty(stmt, child_prefix, is_root=False, is_last=i == len(ifBody) - 1)
+            if elseBody is not None:
+                print(prefix + connector + "ELSE")
+                for i, stmt in enumerate(elseBody):
+                    pretty(
+                        stmt,
+                        child_prefix,
+                        is_root=False,
+                        is_last=i == len(elseBody) - 1,
+                    )
 
         case _:
             raise AssertionError(f"unhandled node type: {type(node).__name__}")

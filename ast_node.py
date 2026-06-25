@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Union
+from typing import Optional, Union
 
 
 class BinaryOp(Enum):
@@ -85,6 +85,7 @@ class ExprStmt:
 @dataclass(frozen=True)
 class IfStmt:
     condition: Expr
-    body: tuple[Stmt, ...]
+    ifBody: tuple[Stmt, ...]
+    elseBody: Optional[tuple[Stmt, ...]]
     start: int
     end: int
