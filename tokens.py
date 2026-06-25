@@ -12,6 +12,13 @@ class TokenKind(Enum):
     RPAREN = auto()
     SEMICOLON = auto()
     EQ = auto()
+    EQEQ = auto()
+    NOT = auto()
+    NEQ = auto()
+    LT = auto()
+    LE = auto()
+    GT = auto()
+    GE = auto()
     NUMBER = auto()
     IDENTIFIER = auto()
     TRUE = auto()
@@ -41,7 +48,17 @@ SINGLE_CHAR_TOKENS = {
     "(": TokenKind.LPAREN,
     ")": TokenKind.RPAREN,
     ";": TokenKind.SEMICOLON,
+}
+
+MULTI_CHAR_TOKENS = {
     "=": TokenKind.EQ,
+    "==": TokenKind.EQEQ,
+    "<": TokenKind.LT,
+    "<=": TokenKind.LE,
+    ">": TokenKind.GT,
+    ">=": TokenKind.GE,
+    "!": TokenKind.NOT,
+    "!=": TokenKind.NEQ,
 }
 
 TOKEN_DISPLAY = {
@@ -54,6 +71,13 @@ TOKEN_DISPLAY = {
     TokenKind.RPAREN: ")",
     TokenKind.SEMICOLON: ";",
     TokenKind.EQ: "=",
+    TokenKind.LT: "<",
+    TokenKind.GT: ">",
+    TokenKind.EQEQ: "==",
+    TokenKind.NOT: "!",
+    TokenKind.NEQ: "!=",
+    TokenKind.LE: "<=",
+    TokenKind.GE: ">=",
     TokenKind.NUMBER: "number",
     TokenKind.IDENTIFIER: "identifier",
     TokenKind.TRUE: "true",
