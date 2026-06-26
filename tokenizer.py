@@ -9,8 +9,11 @@ from tokens import (
     TokenKind,
 )
 
-IDENTIFIER_STARTING_CHARS = frozenset("_" + ascii_lowercase + ascii_uppercase)
-IDENTIFIER_CHARS = frozenset(IDENTIFIER_STARTING_CHARS + digits)
+IDENTIFIER_STARTING_CHARS = "_" + ascii_lowercase + ascii_uppercase
+IDENTIFIER_CHARS = IDENTIFIER_STARTING_CHARS + digits
+
+IDENTIFIER_STARTING_CHARS_FS = frozenset(IDENTIFIER_STARTING_CHARS)
+IDENTIFIER_CHARS_FS = frozenset(IDENTIFIER_CHARS)
 
 
 def tokenize(src: str) -> list[Token]:
@@ -43,9 +46,9 @@ def tokenize(src: str) -> list[Token]:
             )
 
         # handle identifiers
-        elif char in IDENTIFIER_STARTING_CHARS:
+        elif char in IDENTIFIER_STARTING_CHARS_FS:
             start = cursor
-            while cursor < srcLen and src[cursor] in IDENTIFIER_CHARS:
+            while cursor < srcLen and src[cursor] in IDENTIFIER_CHARS_FS:
                 cursor += 1
 
             identifier = src[start:cursor]
