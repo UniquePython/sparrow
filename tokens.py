@@ -37,6 +37,9 @@ class TokenKind(Enum):
     SKIP = auto()
     ONSTOP = auto()
     NOSTOP = auto()
+    FUNCTION = auto()
+    RETURN = auto()
+    ARROW = auto()
     EOF = auto()
 
 
@@ -75,6 +78,7 @@ MULTI_CHAR_TOKENS = {
     ">=": TokenKind.GE,
     "!": TokenKind.NOT,
     "!=": TokenKind.NEQ,
+    "->": TokenKind.ARROW,
 }
 
 KEYWORDS_TO_TOKENKIND: dict[str, TokenKind] = {
@@ -92,6 +96,8 @@ KEYWORDS_TO_TOKENKIND: dict[str, TokenKind] = {
     "skip": TokenKind.SKIP,
     "onstop": TokenKind.ONSTOP,
     "nostop": TokenKind.NOSTOP,
+    "function": TokenKind.FUNCTION,
+    "return": TokenKind.RETURN,
 }
 
 TOKEN_DISPLAY = {
@@ -129,5 +135,8 @@ TOKEN_DISPLAY = {
     TokenKind.SKIP: "skip",
     TokenKind.ONSTOP: "onstop",
     TokenKind.NOSTOP: "nostop",
+    TokenKind.FUNCTION: "function",
+    TokenKind.RETURN: "return",
+    TokenKind.ARROW: "->",
     TokenKind.EOF: "end of file",
 }
