@@ -33,6 +33,8 @@ class TokenKind(Enum):
     UNTIL = auto()
     FOREVER = auto()
     REPEAT = auto()
+    STOP = auto()
+    SKIP = auto()
     EOF = auto()
 
 
@@ -84,6 +86,8 @@ KEYWORDS_TO_TOKENKIND: dict[str, TokenKind] = {
     "until": TokenKind.UNTIL,
     "forever": TokenKind.FOREVER,
     "repeat": TokenKind.REPEAT,
+    "stop": TokenKind.STOP,
+    "skip": TokenKind.SKIP,
 }
 
 TOKEN_DISPLAY = {
@@ -117,5 +121,7 @@ TOKEN_DISPLAY = {
     TokenKind.FOREVER: "forever",
     TokenKind.UNTIL: "until",
     TokenKind.REPEAT: "repeat",
+    TokenKind.STOP: "stop",
+    TokenKind.SKIP: "skip",
     TokenKind.EOF: "end of file",
 }

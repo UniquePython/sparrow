@@ -12,7 +12,9 @@ from ast_node import (
     IfStmt,
     NumberLiteral,
     RepeatStmt,
+    SkipStmt,
     Stmt,
+    StopStmt,
     UnaryExpr,
     UnaryOp,
     WhileStmt,
@@ -203,6 +205,12 @@ class Parser:
         # repeatStmt
         elif self.currTokenKind() == TokenKind.REPEAT:
             return self.parseRepeatStatement()
+        # stopStmt
+        elif self.currTokenKind() == TokenKind.STOP:
+            return self.parseStopStatement()
+        # skipStmt
+        elif self.currTokenKind() == TokenKind.SKIP:
+            return self.parseSkipStatement()
         # exprStmt
         else:
             value = self.parseExpr()
@@ -320,6 +328,16 @@ class Parser:
             start=repeatStartTok.start,
             end=repeatEndTok.end,
         )
+
+    def parseStopStatement(self) -> StopStmt:
+        token = self.advance()
+        self.expect(TokenKind.SEMICOLON)
+        return StopStmt(start=token.start, end=token.end)
+
+    def parseSkipStatement(self) -> SkipStmt:
+        token = self.advance()
+        self.expect(TokenKind.SEMICOLON)
+        return SkipStmt(start=token.start, end=token.end)
 
     def parseCondition(self) -> Expr:
         self.expect(TokenKind.LPAREN)
@@ -476,6 +494,12 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
             pretty(ntimes, child_prefix, is_root=False, is_last=len(body) == 0)
             for i, stmt in enumerate(body):
                 pretty(stmt, child_prefix, is_root=False, is_last=i == len(body) - 1)
+
+        case StopStmt():
+            print(prefix + connector + "STOP")
+
+        case SkipStmt():
+            print(prefix + connector + "SKIP")
 
         case _:
             raise AssertionError(f"unhandled node type: {type(node).__name__}")

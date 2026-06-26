@@ -11,13 +11,15 @@ from ast_node import (
     IfStmt,
     NumberLiteral,
     RepeatStmt,
+    SkipStmt,
     Stmt,
+    StopStmt,
     UnaryExpr,
     UnaryOp,
     WhileStmt,
 )
 from environment import Environment
-from errors import SparrowRuntimeError
+from errors import SkipSignal, SparrowRuntimeError, StopSignal
 from values import BooleanValue, IntValue, Value
 
 
@@ -162,8 +164,13 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
 
         case WhileStmt(condition=condition, body=whileBody):
             while evaluate(condition, env).value:
-                for stmt in whileBody:
-                    execute(stmt, env)
+                try:
+                    for stmt in whileBody:
+                        execute(stmt, env)
+                except SkipSignal:
+                    continue
+                except StopSignal:
+                    break
 
         case RepeatStmt(ntimes=ntimes, body=repeatBody):
             ntimesEvaluated = evaluate(ntimes, env)
@@ -176,8 +183,19 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
                 )
 
             for _ in range(ntimesEvaluated.value):
-                for stmt in repeatBody:
-                    execute(stmt, env)
+                try:
+                    for stmt in repeatBody:
+                        execute(stmt, env)
+                except SkipSignal:
+                    continue
+                except StopSignal:
+                    break
+
+        case StopStmt():
+            raise StopSignal()
+
+        case SkipStmt():
+            raise SkipSignal()
 
         case _:
             raise AssertionError(f"unhandled node type: {type(stmt).__name__}")

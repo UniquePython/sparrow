@@ -1,3 +1,11 @@
+class StopSignal(Exception):
+    pass
+
+
+class SkipSignal(Exception):
+    pass
+
+
 class SparrowError(Exception):
     def __init__(self, message: str, start: int, end: int):
         self.message = message
