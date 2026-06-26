@@ -10,6 +10,7 @@ from ast_node import (
     IdentifierExpr,
     IfStmt,
     NumberLiteral,
+    RepeatStmt,
     Stmt,
     UnaryExpr,
     UnaryOp,
@@ -162,6 +163,20 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
         case WhileStmt(condition=condition, body=whileBody):
             while evaluate(condition, env).value:
                 for stmt in whileBody:
+                    execute(stmt, env)
+
+        case RepeatStmt(ntimes=ntimes, body=repeatBody):
+            ntimesEvaluated = evaluate(ntimes, env)
+
+            if ntimesEvaluated.value < 0:
+                raise SparrowRuntimeError(
+                    f"Cannot repeat {ntimesEvaluated.value!r} times (must be 0 or more)",
+                    ntimes.start,
+                    ntimes.end,
+                )
+
+            for _ in range(ntimesEvaluated.value):
+                for stmt in repeatBody:
                     execute(stmt, env)
 
         case _:

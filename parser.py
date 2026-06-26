@@ -11,6 +11,7 @@ from ast_node import (
     IdentifierExpr,
     IfStmt,
     NumberLiteral,
+    RepeatStmt,
     Stmt,
     UnaryExpr,
     UnaryOp,
@@ -199,6 +200,9 @@ class Parser:
             return self.parseWhileStatement(isUntil=True)
         elif self.currTokenKind() == TokenKind.FOREVER:
             return self.parseForeverStatement()
+        # repeatStmt
+        elif self.currTokenKind() == TokenKind.REPEAT:
+            return self.parseRepeatStatement()
         # exprStmt
         else:
             value = self.parseExpr()
@@ -300,6 +304,21 @@ class Parser:
             body=foreverStmts,
             start=foreverStartTok.start,
             end=foreverEndTok.end,
+        )
+
+    def parseRepeatStatement(self) -> RepeatStmt:
+        # consume REPEAT token
+        repeatStartTok = self.advance()
+        # parse the count expression
+        repeatCountExpr = self.parseCondition()
+        # parse the block
+        repeatStmts, repeatEndTok = self.parseBlock()
+
+        return RepeatStmt(
+            ntimes=repeatCountExpr,
+            body=repeatStmts,
+            start=repeatStartTok.start,
+            end=repeatEndTok.end,
         )
 
     def parseCondition(self) -> Expr:
@@ -449,6 +468,12 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
         case WhileStmt(condition=condition, body=body):
             print(prefix + connector + "WHILE")
             pretty(condition, child_prefix, is_root=False, is_last=len(body) == 0)
+            for i, stmt in enumerate(body):
+                pretty(stmt, child_prefix, is_root=False, is_last=i == len(body) - 1)
+
+        case RepeatStmt(ntimes=ntimes, body=body):
+            print(prefix + connector + "REPEAT")
+            pretty(ntimes, child_prefix, is_root=False, is_last=len(body) == 0)
             for i, stmt in enumerate(body):
                 pretty(stmt, child_prefix, is_root=False, is_last=i == len(body) - 1)
 

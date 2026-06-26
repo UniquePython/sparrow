@@ -65,7 +65,7 @@ class IdentifierExpr:
     end: int
 
 
-Stmt = Union["AssignStmt", "ExprStmt", "IfStmt", "WhileStmt"]
+Stmt = Union["AssignStmt", "ExprStmt", "IfStmt", "WhileStmt", "RepeatStmt"]
 
 
 @dataclass(frozen=True)
@@ -104,6 +104,14 @@ class IfStmt:
 @dataclass(frozen=True)
 class WhileStmt:
     condition: Expr
+    body: tuple[Stmt, ...]
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class RepeatStmt:
+    ntimes: Expr
     body: tuple[Stmt, ...]
     start: int
     end: int
