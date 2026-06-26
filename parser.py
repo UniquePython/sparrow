@@ -201,42 +201,24 @@ class Parser:
     def parseIfStatement(self, isUnless: bool) -> IfStmt:
         # consume IF token
         ifStartTok = self.advance()
-        # expect ( for start of condition
-        self.expect(TokenKind.LPAREN)
         # parse the condition
-        ifCondition = self.parseExpr()
-        # expect ) for end of condition and { for start of block
-        self.expect(TokenKind.RPAREN)
-        self.expect(TokenKind.LBRACE)
-        # parse statements until }
-        ifStmts = []
-        while self.currTokenKind() not in {TokenKind.RBRACE, TokenKind.EOF}:
-            ifStmts.append(self.parseStatement())
-        # expect closing }
-        ifEndTok = self.expect(TokenKind.RBRACE)
+        ifCondition = self.parseCondition()
+        # parse the block
+        ifStmts, ifEndTok = self.parseBlock()
 
         # check for 'elif' block
         elifClauses = []
         while self.currTokenKind() == TokenKind.ELIF:
             # consume ELIF token
             elifStartTok = self.advance()
-            # expect ( for start of condition
-            self.expect(TokenKind.LPAREN)
             # parse the condition
-            elifCondition = self.parseExpr()
-            # expect ) for end of condition and { for start of block
-            self.expect(TokenKind.RPAREN)
-            self.expect(TokenKind.LBRACE)
-            # parse statements until }
-            elifStmts = []
-            while self.currTokenKind() not in {TokenKind.RBRACE, TokenKind.EOF}:
-                elifStmts.append(self.parseStatement())
-            # expect closing }
-            elifEndTok = self.expect(TokenKind.RBRACE)
+            elifCondition = self.parseCondition()
+            # parse the block
+            elifStmts, elifEndTok = self.parseBlock()
 
             elifClause = ElifClause(
                 condition=elifCondition,
-                body=tuple(elifStmts),
+                body=elifStmts,
                 start=elifStartTok.start,
                 end=elifEndTok.end,
             )
@@ -244,43 +226,55 @@ class Parser:
 
         finalCondition = (
             UnaryExpr(
-                UnaryOp.NOT, ifCondition, start=ifCondition.start, end=ifCondition.end
+                UnaryOp.NOT,
+                ifCondition,
+                start=ifCondition.start,
+                end=ifCondition.end,
             )
             if isUnless
             else ifCondition
         )
 
+        elseBody = None
+        endTok = elifEndTok if len(elifClauses) > 0 else ifEndTok
+
         # check for 'else' block
         if self.currTokenKind() == TokenKind.ELSE:
             # consume ELSE token
             self.advance()
-            # expect { for start of block
-            self.expect(TokenKind.LBRACE)
-            # parse statements until }
-            elseStmts = []
-            while self.currTokenKind() not in {TokenKind.RBRACE, TokenKind.EOF}:
-                elseStmts.append(self.parseStatement())
-            # expect closing }
-            elseEndTok = self.expect(TokenKind.RBRACE)
+            # parse the block
+            elseBody, elseEndTok = self.parseBlock()
+            endTok = elseEndTok
 
-            return IfStmt(
-                condition=finalCondition,
-                ifBody=tuple(ifStmts),
-                elifClauses=tuple(elifClauses),
-                elseBody=tuple(elseStmts),
-                start=ifStartTok.start,
-                end=elseEndTok.end,
-            )
+        return IfStmt(
+            condition=finalCondition,
+            ifBody=ifStmts,
+            elifClauses=tuple(elifClauses),
+            elseBody=elseBody,
+            start=ifStartTok.start,
+            end=endTok.end,
+        )
 
-        else:
-            return IfStmt(
-                condition=finalCondition,
-                ifBody=tuple(ifStmts),
-                elifClauses=tuple(elifClauses),
-                elseBody=None,
-                start=ifStartTok.start,
-                end=elifEndTok.end if len(elifClauses) > 0 else ifEndTok.end,
-            )
+    def parseCondition(self) -> Expr:
+        self.expect(TokenKind.LPAREN)
+        condition = self.parseExpr()
+        self.expect(TokenKind.RPAREN)
+        return condition
+
+    def parseBlock(self) -> tuple[tuple[Stmt, ...], Token]:
+        self.expect(TokenKind.LBRACE)
+
+        stmts = []
+
+        while self.currTokenKind() not in {
+            TokenKind.RBRACE,
+            TokenKind.EOF,
+        }:
+            stmts.append(self.parseStatement())
+
+        endTok = self.expect(TokenKind.RBRACE)
+
+        return tuple(stmts), endTok
 
 
 def parseProgram(tokens: list[Token]) -> list[Stmt]:
