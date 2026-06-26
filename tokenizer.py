@@ -9,8 +9,8 @@ from tokens import (
     TokenKind,
 )
 
-IDENTIFIER_STARTING_CHARS = "_" + ascii_lowercase + ascii_uppercase
-IDENTIFIER_CHARS = IDENTIFIER_STARTING_CHARS + digits
+IDENTIFIER_STARTING_CHARS = frozenset("_" + ascii_lowercase + ascii_uppercase)
+IDENTIFIER_CHARS = frozenset(IDENTIFIER_STARTING_CHARS + digits)
 
 
 def tokenize(src: str) -> list[Token]:
