@@ -88,6 +88,7 @@ Stmt = Union[
     "SkipStmt",
     "VarDeclStmt",
     "FuncDeclStmt",
+    "ReturnStmt",
 ]
 
 
@@ -122,6 +123,13 @@ class FuncDeclStmt:
     params: tuple[Param, ...]
     returnType: str
     body: tuple[Stmt, ...]
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class ReturnStmt:
+    value: Optional[Expr]
     start: int
     end: int
 

@@ -7,10 +7,13 @@ from ast_node import (
     BoolLiteral,
     Expr,
     ExprStmt,
+    FuncCallExpr,
+    FuncDeclStmt,
     IdentifierExpr,
     IfStmt,
     NumberLiteral,
     RepeatStmt,
+    ReturnStmt,
     SkipStmt,
     Stmt,
     StopStmt,
@@ -20,8 +23,8 @@ from ast_node import (
     WhileStmt,
 )
 from environment import Environment
-from errors import SkipSignal, SparrowRuntimeError, StopSignal
-from values import BoolValue, IntValue, Value
+from errors import ReturnSignal, SkipSignal, SparrowRuntimeError, StopSignal
+from values import BoolValue, FuncValue, IntValue, Value
 
 
 def add(a: IntValue, b: IntValue) -> IntValue:
@@ -124,6 +127,38 @@ def evaluate(node: Expr, env: Environment) -> Value:
         case IdentifierExpr(name=name, start=start, end=end):
             return env.value(name, start, end)
 
+        case FuncCallExpr(name=name, args=args, start=start, end=end):
+            funcValue = env.value(name, start, end)
+
+            exprValues = []
+            for expr in args:
+                exprValue = evaluate(expr, env)
+                exprValues.append(exprValue)
+
+            exprValuesLen = len(exprValues)
+            paramsLen = len(funcValue.params)
+
+            if paramsLen != exprValuesLen:
+                raise SparrowRuntimeError(
+                    f"Function {name} expects {paramsLen} arguments but only {exprValuesLen} were provided",
+                    start=start,
+                    end=end,
+                )
+
+            funcEnv = Environment(parent=funcValue.closure)
+
+            for param, exprValue in zip(funcValue.params, exprValues):
+                funcEnv.declare(
+                    param.name, param.type, exprValue, param.start, param.end
+                )
+
+            try:
+                for stmt in funcValue.body:
+                    execute(stmt, funcEnv)
+                return None  # no return statement hit
+            except ReturnSignal as sig:
+                return sig.value
+
         case _:
             raise AssertionError(f"unhandled node type: {type(node).__name__}")
 
@@ -141,6 +176,27 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
             env.declare(name, type, result, start, end)
 
             return result
+
+        case FuncDeclStmt(
+            name=name,
+            params=params,
+            returnType=returnType,
+            body=body,
+            start=start,
+            end=end,
+        ):
+            funcValue = FuncValue(
+                params=params, returnType=returnType, body=body, closure=env
+            )
+            env.declare(name, "function", funcValue, start, end)
+            return funcValue
+
+        case ReturnStmt(value=value, start=start, end=end):
+            val = None
+            if value is not None:
+                val = evaluate(value, env)
+
+            raise ReturnSignal(val)
 
         case ExprStmt(expr=expr):
             return evaluate(expr, env)

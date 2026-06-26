@@ -8,12 +8,14 @@ from ast_node import (
     ElifClause,
     Expr,
     ExprStmt,
+    FuncCallExpr,
     FuncDeclStmt,
     IdentifierExpr,
     IfStmt,
     NumberLiteral,
     Param,
     RepeatStmt,
+    ReturnStmt,
     SkipStmt,
     Stmt,
     StopStmt,
@@ -113,6 +115,17 @@ class Parser:
 
             return result
 
+        elif (
+            self.peekTokenKind() == TokenKind.IDENTIFIER
+            and self.peekTokenKind(1) == TokenKind.LPAREN
+        ):
+            funcName = self.advance()
+            args, endTok = self.parseArgs()
+
+            return FuncCallExpr(
+                name=funcName.value, args=args, start=funcName.start, end=endTok.end
+            )
+
         elif self.peekTokenKind() == TokenKind.IDENTIFIER:
             tok = self.advance()
             return IdentifierExpr(name=tok.value, start=tok.start, end=tok.end)
@@ -172,6 +185,22 @@ class Parser:
 
         return left
 
+    def parseArgs(self) -> tuple[tuple[Expr, ...], Token]:
+        self.expect(TokenKind.LPAREN)
+
+        args = []
+
+        while self.peekTokenKind() not in {TokenKind.RPAREN, TokenKind.EOF}:
+            arg = self.parseExpr()
+            args.append(arg)
+
+            if self.peekTokenKind() != TokenKind.RPAREN:
+                self.expect(TokenKind.COMMA)
+
+        tok = self.expect(TokenKind.RPAREN)
+
+        return tuple(args), tok
+
     def parseStatement(self) -> Stmt:
         # assignStmt
         if (
@@ -189,6 +218,9 @@ class Parser:
         # funcDeclStmt
         elif self.peekTokenKind() == TokenKind.FUNCTION:
             return self.parseFuncDeclStatement()
+        # returnStmt
+        elif self.peekTokenKind() == TokenKind.RETURN:
+            return self.parseReturnStatement()
         # ifStmt
         elif self.peekTokenKind() == TokenKind.IF:
             return self.parseIfStatement(isUnless=False)
@@ -292,6 +324,17 @@ class Parser:
         self.expect(TokenKind.RPAREN)
 
         return tuple(params)
+
+    def parseReturnStatement(self) -> ReturnStmt:
+        startTok = self.advance()
+
+        retVal = None
+        if self.peekTokenKind() != TokenKind.SEMICOLON:
+            retVal = self.parseExpr()
+
+        endTok = self.expect(TokenKind.SEMICOLON)
+
+        return ReturnStmt(value=retVal, start=startTok.start, end=endTok.end)
 
     def parseIfStatement(self, isUnless: bool) -> IfStmt:
         # consume IF token
@@ -501,6 +544,11 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
         case IdentifierExpr(name=name):
             print(prefix + connector + name)
 
+        case FuncCallExpr(name=name, args=args):
+            print(prefix + connector + f"CALL {name}")
+            for i, arg in enumerate(args):
+                pretty(arg, child_prefix, is_root=False, is_last=i == len(args) - 1)
+
         case UnaryExpr(operator=operator, operand=operand):
             print(prefix + connector + operator.name)
             pretty(
@@ -546,6 +594,23 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
         case VarDeclStmt(type=type, name=name, value=value):
             print(prefix + connector + f"{type} {name}")
             pretty(value, child_prefix, is_root=False, is_last=True)
+
+        case FuncDeclStmt(name=name, params=params, returnType=returnType, body=body):
+            print(prefix + connector + f"FUNC {name} -> {returnType}")
+            for i, param in enumerate(params):
+                is_last_param = i == len(params) - 1 and len(body) == 0
+                print(
+                    child_prefix
+                    + ("└── " if is_last_param else "├── ")
+                    + f"PARAM {param.type} {param.name}"
+                )
+            for i, stmt in enumerate(body):
+                pretty(stmt, child_prefix, is_root=False, is_last=i == len(body) - 1)
+
+        case ReturnStmt(value=value):
+            print(prefix + connector + "RETURN")
+            if value is not None:
+                pretty(value, child_prefix, is_root=False, is_last=True)
 
         case IfStmt(
             condition=condition,

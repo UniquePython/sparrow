@@ -59,7 +59,6 @@ class Token:
 
 SINGLE_CHAR_TOKENS = {
     "+": TokenKind.PLUS,
-    "-": TokenKind.MINUS,
     "*": TokenKind.ASTERISK,
     "/": TokenKind.FSLASH,
     "%": TokenKind.PERCENT,
@@ -80,6 +79,7 @@ MULTI_CHAR_TOKENS = {
     ">=": TokenKind.GE,
     "!": TokenKind.NOT,
     "!=": TokenKind.NEQ,
+    "-": TokenKind.MINUS,
     "->": TokenKind.ARROW,
 }
 

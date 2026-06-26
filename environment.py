@@ -46,7 +46,7 @@ class Environment:
                 f"Failed to access undeclared variable {name!r}", start, end
             )
 
-    def value(self, name: str, start: int, end: int) -> str:
+    def value(self, name: str, start: int, end: int) -> Value:
         if name in self.vars:
             return self.vars[name][1]
         elif self.parent is not None:

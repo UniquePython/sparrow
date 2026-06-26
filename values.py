@@ -1,5 +1,10 @@
 from dataclasses import dataclass
-from typing import Union
+from typing import TYPE_CHECKING, Union
+
+from ast_node import Param, Stmt
+
+if TYPE_CHECKING:
+    from environment import Environment
 
 
 @dataclass(frozen=True)
@@ -18,4 +23,16 @@ class BoolValue:
         return "true" if self.value else "false"
 
 
-Value = Union["IntValue", "BoolValue"]
+@dataclass(frozen=True)
+class FuncValue:
+    params: tuple[Param, ...]
+    returnType: str
+    body: tuple[Stmt, ...]
+    closure: "Environment"
+
+    def __repr__(self) -> str:
+        params = ", ".join(f"{p.type} {p.name}" for p in self.params)
+        return f"Function ({params}) -> {self.returnType}"
+
+
+Value = Union["IntValue", "BoolValue", "FuncValue"]
