@@ -4,7 +4,7 @@ from ast_node import (
     AssignStmt,
     BinaryExpr,
     BinaryOp,
-    BooleanLiteral,
+    BoolLiteral,
     Expr,
     ExprStmt,
     IdentifierExpr,
@@ -20,7 +20,7 @@ from ast_node import (
 )
 from environment import Environment
 from errors import SkipSignal, SparrowRuntimeError, StopSignal
-from values import BooleanValue, IntValue, Value
+from values import BoolValue, IntValue, Value
 
 
 def add(a: IntValue, b: IntValue) -> IntValue:
@@ -47,32 +47,32 @@ def neg(x: IntValue) -> IntValue:
     return IntValue(-x.value)
 
 
-def lnot(x: BooleanValue) -> BooleanValue:
-    return BooleanValue(not x.value)
+def lnot(x: BoolValue) -> BoolValue:
+    return BoolValue(not x.value)
 
 
-def eqeq(a: IntValue, b: IntValue) -> BooleanValue:
-    return BooleanValue(a.value == b.value)
+def eqeq(a: IntValue, b: IntValue) -> BoolValue:
+    return BoolValue(a.value == b.value)
 
 
-def neq(a: IntValue, b: IntValue) -> BooleanValue:
-    return BooleanValue(a.value != b.value)
+def neq(a: IntValue, b: IntValue) -> BoolValue:
+    return BoolValue(a.value != b.value)
 
 
-def lt(a: IntValue, b: IntValue) -> BooleanValue:
-    return BooleanValue(a.value < b.value)
+def lt(a: IntValue, b: IntValue) -> BoolValue:
+    return BoolValue(a.value < b.value)
 
 
-def le(a: IntValue, b: IntValue) -> BooleanValue:
-    return BooleanValue(a.value <= b.value)
+def le(a: IntValue, b: IntValue) -> BoolValue:
+    return BoolValue(a.value <= b.value)
 
 
-def gt(a: IntValue, b: IntValue) -> BooleanValue:
-    return BooleanValue(a.value > b.value)
+def gt(a: IntValue, b: IntValue) -> BoolValue:
+    return BoolValue(a.value > b.value)
 
 
-def ge(a: IntValue, b: IntValue) -> BooleanValue:
-    return BooleanValue(a.value >= b.value)
+def ge(a: IntValue, b: IntValue) -> BoolValue:
+    return BoolValue(a.value >= b.value)
 
 
 BINARY_OPS = {
@@ -100,8 +100,8 @@ def evaluate(node: Expr, env: Environment) -> Value:
         case NumberLiteral(value=value):
             return IntValue(value)
 
-        case BooleanLiteral(value=value):
-            return BooleanValue(value)
+        case BoolLiteral(value=value):
+            return BoolValue(value)
 
         case BinaryExpr(left=left, operator=operator, right=right):
             lhs = evaluate(left, env)

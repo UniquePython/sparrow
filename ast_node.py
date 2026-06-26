@@ -23,7 +23,7 @@ class UnaryOp(Enum):
 
 
 Expr = Union[
-    "NumberLiteral", "BooleanLiteral", "BinaryExpr", "UnaryExpr", "IdentifierExpr"
+    "NumberLiteral", "BoolLiteral", "BinaryExpr", "UnaryExpr", "IdentifierExpr"
 ]
 
 
@@ -35,7 +35,7 @@ class NumberLiteral:
 
 
 @dataclass(frozen=True)
-class BooleanLiteral:
+class BoolLiteral:
     value: bool
     start: int
     end: int

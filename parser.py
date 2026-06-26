@@ -4,7 +4,7 @@ from ast_node import (
     AssignStmt,
     BinaryExpr,
     BinaryOp,
-    BooleanLiteral,
+    BoolLiteral,
     ElifClause,
     Expr,
     ExprStmt,
@@ -99,7 +99,7 @@ class Parser:
         elif self.currTokenKind() in {TokenKind.TRUE, TokenKind.FALSE}:
             tok = self.advance()
             value = tok.value == "true"
-            return BooleanLiteral(value=value, start=tok.start, end=tok.end)
+            return BoolLiteral(value=value, start=tok.start, end=tok.end)
 
         elif self.currTokenKind() == TokenKind.LPAREN:
             # consume LPAREN
@@ -330,7 +330,7 @@ class Parser:
             nostopStmts, endTok = self.parseBlock()
 
         return WhileStmt(
-            condition=BooleanLiteral(True, foreverStartTok.start, foreverStartTok.end),
+            condition=BoolLiteral(True, foreverStartTok.start, foreverStartTok.end),
             body=foreverStmts,
             onstop=onstopStmts,
             nostop=nostopStmts,
@@ -419,7 +419,7 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
         case NumberLiteral(value=value):
             print(prefix + connector + str(value))
 
-        case BooleanLiteral(value=value):
+        case BoolLiteral(value=value):
             boolStr = "true" if value else "false"
             print(prefix + connector + boolStr)
 
