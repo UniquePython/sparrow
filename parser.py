@@ -17,6 +17,7 @@ from ast_node import (
     StopStmt,
     UnaryExpr,
     UnaryOp,
+    VarDeclStmt,
     WhileStmt,
 )
 from errors import SparrowParseError
@@ -175,18 +176,14 @@ class Parser:
             self.peekTokenKind() == TokenKind.IDENTIFIER
             and self.peekTokenKind(1) == TokenKind.EQ
         ):
-            identifierTok = self.advance()
-            self.expect(TokenKind.EQ)
-
-            value = self.parseExpr()
-            self.expect(TokenKind.SEMICOLON)
-
-            return AssignStmt(
-                name=identifierTok.value,
-                value=value,
-                start=identifierTok.start,
-                end=value.end,
-            )
+            return self.parseAssignStatement()
+        # varDeclStmt
+        elif (
+            self.peekTokenKind() == TokenKind.IDENTIFIER
+            and self.peekTokenKind(1) == TokenKind.IDENTIFIER
+            and self.peekTokenKind(2) == TokenKind.EQ
+        ):
+            return self.parseVarDeclStatement()
         # ifStmt
         elif self.peekTokenKind() == TokenKind.IF:
             return self.parseIfStatement(isUnless=False)
@@ -214,6 +211,32 @@ class Parser:
             self.expect(TokenKind.SEMICOLON)
 
             return ExprStmt(expr=value, start=value.start, end=value.end)
+
+    def parseAssignStatement(self) -> AssignStmt:
+        identifierTok = self.advance()
+        self.expect(TokenKind.EQ)
+
+        value = self.parseExpr()
+        self.expect(TokenKind.SEMICOLON)
+
+        return AssignStmt(
+            name=identifierTok.value,
+            value=value,
+            start=identifierTok.start,
+            end=value.end,
+        )
+
+    def parseVarDeclStatement(self) -> VarDeclStmt:
+        varType = self.advance()
+        varName = self.advance()
+        self.expect(TokenKind.EQ)
+
+        varValue = self.parseExpr()
+        endTok = self.expect(TokenKind.SEMICOLON)
+
+        return VarDeclStmt(
+            varType.value, varName.value, varValue, varType.start, endTok.end
+        )
 
     def parseIfStatement(self, isUnless: bool) -> IfStmt:
         # consume IF token
@@ -464,6 +487,10 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
                 is_root=False,
                 is_last=True,
             )
+
+        case VarDeclStmt(type=type, name=name, value=value):
+            print(prefix + connector + f"{type} {name}")
+            pretty(value, child_prefix, is_root=False, is_last=True)
 
         case IfStmt(
             condition=condition,

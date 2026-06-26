@@ -16,6 +16,7 @@ from ast_node import (
     StopStmt,
     UnaryExpr,
     UnaryOp,
+    VarDeclStmt,
     WhileStmt,
 )
 from environment import Environment
@@ -121,7 +122,7 @@ def evaluate(node: Expr, env: Environment) -> Value:
             return UNARY_OPS[operator](value)
 
         case IdentifierExpr(name=name, start=start, end=end):
-            return env.get(name, start, end)
+            return env.value(name, start, end)
 
         case _:
             raise AssertionError(f"unhandled node type: {type(node).__name__}")
@@ -129,9 +130,15 @@ def evaluate(node: Expr, env: Environment) -> Value:
 
 def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
     match stmt:
-        case AssignStmt(name=name, value=value):
+        case AssignStmt(name=name, value=value, start=start, end=end):
             result = evaluate(value, env)
-            env.define(name, result)
+            env.assign(name, result, start, end)
+
+            return result
+
+        case VarDeclStmt(type=type, name=name, value=value, start=start, end=end):
+            result = evaluate(value, env)
+            env.declare(name, type, result, start, end)
 
             return result
 

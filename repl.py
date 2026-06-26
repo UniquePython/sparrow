@@ -30,15 +30,22 @@ def dumpAst(src: str) -> None:
 
 
 def dumpVar(env: Environment, src: str) -> None:
-    if src in env.vars:
-        print(env.get(src, 0, 0))
+    if env.exists(src):
+        print(env.value(src, 0, 0))
+    else:
+        print(f"Failed to access undefined variable {src!r}")
+
+
+def dumpType(env: Environment, src: str) -> None:
+    if env.exists(src):
+        print(env.type(src, 0, 0))
     else:
         print(f"Failed to access undefined variable {src!r}")
 
 
 def dumpEnv(env: Environment) -> None:
-    for var, value in env.vars.items():
-        print(f"{var} = {value}")
+    for name, (type, value) in env.vars.items():
+        print(f"{type} {name} = {value}")
 
 
 def main() -> None:
@@ -85,6 +92,15 @@ def main() -> None:
             if line.startswith(":var "):
                 src = line.removeprefix(":var ")
                 dumpVar(env, src)
+                continue
+
+            if line == ":type":
+                print("Usage: :type IDENT")
+                continue
+
+            if line.startswith(":type "):
+                src = line.removeprefix(":type ")
+                dumpType(env, src)
                 continue
 
             if line.startswith(":env"):

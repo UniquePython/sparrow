@@ -73,11 +73,21 @@ Stmt = Union[
     "RepeatStmt",
     "StopStmt",
     "SkipStmt",
+    "VarDeclStmt",
 ]
 
 
 @dataclass(frozen=True)
 class AssignStmt:
+    name: str
+    value: Expr
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class VarDeclStmt:
+    type: str
     name: str
     value: Expr
     start: int
