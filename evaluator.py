@@ -162,7 +162,10 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
                         for elseStmt in elseBody:
                             execute(elseStmt, env)
 
-        case WhileStmt(condition=condition, body=whileBody):
+        case WhileStmt(
+            condition=condition, body=whileBody, onstop=onstop, nostop=nostop
+        ):
+            stoppedEarly = False
             while evaluate(condition, env).value:
                 try:
                     for stmt in whileBody:
@@ -170,9 +173,19 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
                 except SkipSignal:
                     continue
                 except StopSignal:
+                    stoppedEarly = True
                     break
 
-        case RepeatStmt(ntimes=ntimes, body=repeatBody):
+            if stoppedEarly:
+                if onstop is not None:
+                    for stmt in onstop:
+                        execute(stmt, env)
+            else:
+                if nostop is not None:
+                    for stmt in nostop:
+                        execute(stmt, env)
+
+        case RepeatStmt(ntimes=ntimes, body=repeatBody, onstop=onstop, nostop=nostop):
             ntimesEvaluated = evaluate(ntimes, env)
 
             if ntimesEvaluated.value < 0:
@@ -182,6 +195,7 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
                     ntimes.end,
                 )
 
+            stoppedEarly = False
             for _ in range(ntimesEvaluated.value):
                 try:
                     for stmt in repeatBody:
@@ -189,7 +203,17 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
                 except SkipSignal:
                     continue
                 except StopSignal:
+                    stoppedEarly = True
                     break
+
+            if stoppedEarly:
+                if onstop is not None:
+                    for stmt in onstop:
+                        execute(stmt, env)
+            else:
+                if nostop is not None:
+                    for stmt in nostop:
+                        execute(stmt, env)
 
         case StopStmt():
             raise StopSignal()

@@ -113,6 +113,8 @@ class IfStmt:
 class WhileStmt:
     condition: Expr
     body: tuple[Stmt, ...]
+    onstop: Optional[tuple[Stmt, ...]]
+    nostop: Optional[tuple[Stmt, ...]]
     start: int
     end: int
 
@@ -121,6 +123,8 @@ class WhileStmt:
 class RepeatStmt:
     ntimes: Expr
     body: tuple[Stmt, ...]
+    onstop: Optional[tuple[Stmt, ...]]
+    nostop: Optional[tuple[Stmt, ...]]
     start: int
     end: int
 

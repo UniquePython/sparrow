@@ -281,7 +281,17 @@ class Parser:
         # parse the condition
         whileCondition = self.parseCondition()
         # parse the block
-        whileStmts, whileEndTok = self.parseBlock()
+        whileStmts, endTok = self.parseBlock()
+
+        onstopStmts = nostopStmts = None
+
+        if self.currTokenKind() == TokenKind.ONSTOP:
+            self.advance()
+            onstopStmts, endTok = self.parseBlock()
+
+        if self.currTokenKind() == TokenKind.NOSTOP:
+            self.advance()
+            nostopStmts, endTok = self.parseBlock()
 
         finalCondition = (
             UnaryExpr(
@@ -297,21 +307,35 @@ class Parser:
         return WhileStmt(
             condition=finalCondition,
             body=whileStmts,
+            onstop=onstopStmts,
+            nostop=nostopStmts,
             start=whileStartTok.start,
-            end=whileEndTok.end,
+            end=endTok.end,
         )
 
     def parseForeverStatement(self) -> WhileStmt:
         # consume FOREVER token
         foreverStartTok = self.advance()
         # parse the block
-        foreverStmts, foreverEndTok = self.parseBlock()
+        foreverStmts, endTok = self.parseBlock()
+
+        onstopStmts = nostopStmts = None
+
+        if self.currTokenKind() == TokenKind.ONSTOP:
+            self.advance()
+            onstopStmts, endTok = self.parseBlock()
+
+        if self.currTokenKind() == TokenKind.NOSTOP:
+            self.advance()
+            nostopStmts, endTok = self.parseBlock()
 
         return WhileStmt(
             condition=BooleanLiteral(True, foreverStartTok.start, foreverStartTok.end),
             body=foreverStmts,
+            onstop=onstopStmts,
+            nostop=nostopStmts,
             start=foreverStartTok.start,
-            end=foreverEndTok.end,
+            end=endTok.end,
         )
 
     def parseRepeatStatement(self) -> RepeatStmt:
@@ -320,13 +344,25 @@ class Parser:
         # parse the count expression
         repeatCountExpr = self.parseCondition()
         # parse the block
-        repeatStmts, repeatEndTok = self.parseBlock()
+        repeatStmts, endTok = self.parseBlock()
+
+        onstopStmts = nostopStmts = None
+
+        if self.currTokenKind() == TokenKind.ONSTOP:
+            self.advance()
+            onstopStmts, endTok = self.parseBlock()
+
+        if self.currTokenKind() == TokenKind.NOSTOP:
+            self.advance()
+            nostopStmts, endTok = self.parseBlock()
 
         return RepeatStmt(
             ntimes=repeatCountExpr,
             body=repeatStmts,
+            onstop=onstopStmts,
+            nostop=nostopStmts,
             start=repeatStartTok.start,
-            end=repeatEndTok.end,
+            end=endTok.end,
         )
 
     def parseStopStatement(self) -> StopStmt:
@@ -483,17 +519,73 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
                         stmt, else_prefix, is_root=False, is_last=i == len(elseBody) - 1
                     )
 
-        case WhileStmt(condition=condition, body=body):
+        case WhileStmt(condition=condition, body=body, onstop=onstop, nostop=nostop):
+            hasOnstop = onstop is not None
+            hasNostop = nostop is not None
             print(prefix + connector + "WHILE")
-            pretty(condition, child_prefix, is_root=False, is_last=len(body) == 0)
+            pretty(
+                condition,
+                child_prefix,
+                is_root=False,
+                is_last=len(body) == 0 and not hasOnstop and not hasNostop,
+            )
             for i, stmt in enumerate(body):
-                pretty(stmt, child_prefix, is_root=False, is_last=i == len(body) - 1)
+                pretty(
+                    stmt,
+                    child_prefix,
+                    is_root=False,
+                    is_last=i == len(body) - 1 and not hasOnstop and not hasNostop,
+                )
 
-        case RepeatStmt(ntimes=ntimes, body=body):
+            if hasOnstop:
+                print(child_prefix + ("└── " if not hasNostop else "├── ") + "ONSTOP")
+                onstop_prefix = child_prefix + ("    " if not hasNostop else "│   ")
+                for i, stmt in enumerate(onstop):
+                    pretty(
+                        stmt, onstop_prefix, is_root=False, is_last=i == len(onstop) - 1
+                    )
+
+            if hasNostop:
+                print(child_prefix + "└── NOSTOP")
+                nostop_prefix = child_prefix + "    "
+                for i, stmt in enumerate(nostop):
+                    pretty(
+                        stmt, nostop_prefix, is_root=False, is_last=i == len(nostop) - 1
+                    )
+
+        case RepeatStmt(ntimes=ntimes, body=body, onstop=onstop, nostop=nostop):
+            hasOnstop = onstop is not None
+            hasNostop = nostop is not None
             print(prefix + connector + "REPEAT")
-            pretty(ntimes, child_prefix, is_root=False, is_last=len(body) == 0)
+            pretty(
+                ntimes,
+                child_prefix,
+                is_root=False,
+                is_last=len(body) == 0 and not hasOnstop and not hasNostop,
+            )
             for i, stmt in enumerate(body):
-                pretty(stmt, child_prefix, is_root=False, is_last=i == len(body) - 1)
+                pretty(
+                    stmt,
+                    child_prefix,
+                    is_root=False,
+                    is_last=i == len(body) - 1 and not hasOnstop and not hasNostop,
+                )
+
+            if hasOnstop:
+                print(child_prefix + ("└── " if not hasNostop else "├── ") + "ONSTOP")
+                onstop_prefix = child_prefix + ("    " if not hasNostop else "│   ")
+                for i, stmt in enumerate(onstop):
+                    pretty(
+                        stmt, onstop_prefix, is_root=False, is_last=i == len(onstop) - 1
+                    )
+
+            if hasNostop:
+                print(child_prefix + "└── NOSTOP")
+                nostop_prefix = child_prefix + "    "
+                for i, stmt in enumerate(nostop):
+                    pretty(
+                        stmt, nostop_prefix, is_root=False, is_last=i == len(nostop) - 1
+                    )
 
         case StopStmt():
             print(prefix + connector + "STOP")

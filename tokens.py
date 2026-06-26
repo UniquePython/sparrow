@@ -35,6 +35,8 @@ class TokenKind(Enum):
     REPEAT = auto()
     STOP = auto()
     SKIP = auto()
+    ONSTOP = auto()
+    NOSTOP = auto()
     EOF = auto()
 
 
@@ -88,6 +90,8 @@ KEYWORDS_TO_TOKENKIND: dict[str, TokenKind] = {
     "repeat": TokenKind.REPEAT,
     "stop": TokenKind.STOP,
     "skip": TokenKind.SKIP,
+    "onstop": TokenKind.ONSTOP,
+    "nostop": TokenKind.NOSTOP,
 }
 
 TOKEN_DISPLAY = {
@@ -123,5 +127,7 @@ TOKEN_DISPLAY = {
     TokenKind.REPEAT: "repeat",
     TokenKind.STOP: "stop",
     TokenKind.SKIP: "skip",
+    TokenKind.ONSTOP: "onstop",
+    TokenKind.NOSTOP: "nostop",
     TokenKind.EOF: "end of file",
 }
