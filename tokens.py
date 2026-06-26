@@ -39,7 +39,7 @@ class TokenKind(Enum):
     NOSTOP = auto()
     FUNCTION = auto()
     RETURN = auto()
-    ARROW = auto()
+    RETURNS = auto()
     COMMA = auto()
     EOF = auto()
 
@@ -59,6 +59,7 @@ class Token:
 
 SINGLE_CHAR_TOKENS = {
     "+": TokenKind.PLUS,
+    "-": TokenKind.MINUS,
     "*": TokenKind.ASTERISK,
     "/": TokenKind.FSLASH,
     "%": TokenKind.PERCENT,
@@ -79,8 +80,6 @@ MULTI_CHAR_TOKENS = {
     ">=": TokenKind.GE,
     "!": TokenKind.NOT,
     "!=": TokenKind.NEQ,
-    "-": TokenKind.MINUS,
-    "->": TokenKind.ARROW,
 }
 
 KEYWORDS_TO_TOKENKIND: dict[str, TokenKind] = {
@@ -100,6 +99,7 @@ KEYWORDS_TO_TOKENKIND: dict[str, TokenKind] = {
     "nostop": TokenKind.NOSTOP,
     "function": TokenKind.FUNCTION,
     "return": TokenKind.RETURN,
+    "returns": TokenKind.RETURNS,
 }
 
 TOKEN_DISPLAY = {
@@ -139,7 +139,7 @@ TOKEN_DISPLAY = {
     TokenKind.NOSTOP: "nostop",
     TokenKind.FUNCTION: "function",
     TokenKind.RETURN: "return",
-    TokenKind.ARROW: "->",
+    TokenKind.RETURNS: "returns",
     TokenKind.COMMA: ",",
     TokenKind.EOF: "end of file",
 }

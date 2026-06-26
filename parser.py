@@ -287,7 +287,7 @@ class Parser:
 
         params = self.parseParams()
 
-        self.expect(TokenKind.ARROW)
+        self.expect(TokenKind.RETURNS)
         returnType = self.expect(TokenKind.IDENTIFIER)
 
         body, endTok = self.parseBlock()
