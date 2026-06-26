@@ -40,6 +40,7 @@ class TokenKind(Enum):
     FUNCTION = auto()
     RETURN = auto()
     ARROW = auto()
+    COMMA = auto()
     EOF = auto()
 
 
@@ -67,6 +68,7 @@ SINGLE_CHAR_TOKENS = {
     "{": TokenKind.LBRACE,
     "}": TokenKind.RBRACE,
     ";": TokenKind.SEMICOLON,
+    ",": TokenKind.COMMA,
 }
 
 MULTI_CHAR_TOKENS = {
@@ -138,5 +140,6 @@ TOKEN_DISPLAY = {
     TokenKind.FUNCTION: "function",
     TokenKind.RETURN: "return",
     TokenKind.ARROW: "->",
+    TokenKind.COMMA: ",",
     TokenKind.EOF: "end of file",
 }

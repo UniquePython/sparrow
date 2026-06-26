@@ -8,9 +8,11 @@ from ast_node import (
     ElifClause,
     Expr,
     ExprStmt,
+    FuncDeclStmt,
     IdentifierExpr,
     IfStmt,
     NumberLiteral,
+    Param,
     RepeatStmt,
     SkipStmt,
     Stmt,
@@ -184,6 +186,9 @@ class Parser:
             and self.peekTokenKind(2) == TokenKind.EQ
         ):
             return self.parseVarDeclStatement()
+        # funcDeclStmt
+        elif self.peekTokenKind() == TokenKind.FUNCTION:
+            return self.parseFuncDeclStatement()
         # ifStmt
         elif self.peekTokenKind() == TokenKind.IF:
             return self.parseIfStatement(isUnless=False)
@@ -235,8 +240,58 @@ class Parser:
         endTok = self.expect(TokenKind.SEMICOLON)
 
         return VarDeclStmt(
-            varType.value, varName.value, varValue, varType.start, endTok.end
+            type=varType.value,
+            name=varName.value,
+            value=varValue,
+            start=varType.start,
+            end=endTok.end,
         )
+
+    def parseFuncDeclStatement(self) -> FuncDeclStmt:
+        # consume 'function' keyword
+        startTok = self.advance()
+
+        funcName = self.expect(TokenKind.IDENTIFIER)
+
+        params = self.parseParams()
+
+        self.expect(TokenKind.ARROW)
+        returnType = self.expect(TokenKind.IDENTIFIER)
+
+        body, endTok = self.parseBlock()
+
+        return FuncDeclStmt(
+            name=funcName.value,
+            params=params,
+            returnType=returnType.value,
+            body=body,
+            start=startTok.start,
+            end=endTok.end,
+        )
+
+    def parseParams(self) -> tuple[Param, ...]:
+        self.expect(TokenKind.LPAREN)
+
+        params = []
+
+        while (
+            self.peekTokenKind() == TokenKind.IDENTIFIER
+            and self.peekTokenKind(1) == TokenKind.IDENTIFIER
+        ):
+            paramType = self.advance()
+            paramName = self.advance()
+
+            param = Param(
+                paramType.value, paramName.value, paramType.start, paramName.end
+            )
+            params.append(param)
+
+            if self.peekTokenKind() != TokenKind.RPAREN:
+                self.expect(TokenKind.COMMA)
+
+        self.expect(TokenKind.RPAREN)
+
+        return tuple(params)
 
     def parseIfStatement(self, isUnless: bool) -> IfStmt:
         # consume IF token

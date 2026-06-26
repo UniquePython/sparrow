@@ -23,7 +23,12 @@ class UnaryOp(Enum):
 
 
 Expr = Union[
-    "NumberLiteral", "BoolLiteral", "BinaryExpr", "UnaryExpr", "IdentifierExpr"
+    "NumberLiteral",
+    "BoolLiteral",
+    "BinaryExpr",
+    "UnaryExpr",
+    "IdentifierExpr",
+    "FuncCallExpr",
 ]
 
 
@@ -65,6 +70,14 @@ class IdentifierExpr:
     end: int
 
 
+@dataclass(frozen=True)
+class FuncCallExpr:
+    name: str
+    args: tuple[Expr, ...]
+    start: int
+    end: int
+
+
 Stmt = Union[
     "AssignStmt",
     "ExprStmt",
@@ -74,6 +87,7 @@ Stmt = Union[
     "StopStmt",
     "SkipStmt",
     "VarDeclStmt",
+    "FuncDeclStmt",
 ]
 
 
@@ -90,6 +104,24 @@ class VarDeclStmt:
     type: str
     name: str
     value: Expr
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class Param:
+    type: str
+    name: str
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class FuncDeclStmt:
+    name: str
+    params: tuple[Param, ...]
+    returnType: str
+    body: tuple[Stmt, ...]
     start: int
     end: int
 
