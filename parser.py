@@ -188,9 +188,9 @@ class Parser:
             )
         # ifStmt
         elif self.currTokenKind() == TokenKind.IF:
-            return self.parseConditionalStatement(isUnless=False)
+            return self.parseIfStatement(isUnless=False)
         elif self.currTokenKind() == TokenKind.UNLESS:
-            return self.parseConditionalStatement(isUnless=True)
+            return self.parseIfStatement(isUnless=True)
         # exprStmt
         else:
             value = self.parseExpr()
@@ -198,7 +198,7 @@ class Parser:
 
             return ExprStmt(expr=value, start=value.start, end=value.end)
 
-    def parseConditionalStatement(self, isUnless: bool) -> IfStmt:
+    def parseIfStatement(self, isUnless: bool) -> IfStmt:
         # consume IF token
         ifStartTok = self.advance()
         # expect ( for start of condition
