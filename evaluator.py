@@ -129,22 +129,29 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
         case ExprStmt(expr=expr):
             return evaluate(expr, env)
 
-        case IfStmt(condition=condition, ifBody=ifBody, elseBody=elseBody):
-            cond = evaluate(condition, env)
-            if not isinstance(cond, BooleanValue):
-                raise SparrowRuntimeError(
-                    f"Expected a boolean (true/false), found {repr(cond)!r} instead",
-                    condition.start,
-                    condition.end,
-                )
+        case IfStmt(
+            condition=condition,
+            ifBody=ifBody,
+            elifClauses=elifClauses,
+            elseBody=elseBody,
+        ):
+            ifCond = evaluate(condition, env)
 
-            if cond.value:
-                for stmt in ifBody:
-                    execute(stmt, env)
+            if ifCond.value:
+                for ifStmt in ifBody:
+                    execute(ifStmt, env)
             else:
-                if elseBody is not None:
-                    for stmt in elseBody:
-                        execute(stmt, env)
+                for elifClause in elifClauses:
+                    elifCond = evaluate(elifClause.condition, env)
+                    if elifCond.value:
+                        for elifStmt in elifClause.body:
+                            execute(elifStmt, env)
+                        break
+
+                else:
+                    if elseBody is not None:
+                        for elseStmt in elseBody:
+                            execute(elseStmt, env)
 
         case _:
             raise AssertionError(f"unhandled node type: {type(stmt).__name__}")

@@ -83,9 +83,18 @@ class ExprStmt:
 
 
 @dataclass(frozen=True)
+class ElifClause:
+    condition: Expr
+    body: tuple[Stmt, ...]
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
 class IfStmt:
     condition: Expr
     ifBody: tuple[Stmt, ...]
+    elifClauses: Optional[tuple[ElifClause, ...]]
     elseBody: Optional[tuple[Stmt, ...]]
     start: int
     end: int

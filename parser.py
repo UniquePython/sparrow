@@ -5,6 +5,7 @@ from ast_node import (
     BinaryExpr,
     BinaryOp,
     BooleanLiteral,
+    ElifClause,
     Expr,
     ExprStmt,
     IdentifierExpr,
@@ -202,7 +203,7 @@ class Parser:
         # expect ( for start of condition
         self.expect(TokenKind.LPAREN)
         # parse the condition
-        condition = self.parseExpr()
+        ifCondition = self.parseExpr()
         # expect ) for end of condition and { for start of block
         self.expect(TokenKind.RPAREN)
         self.expect(TokenKind.LBRACE)
@@ -212,6 +213,33 @@ class Parser:
             ifStmts.append(self.parseStatement())
         # expect closing }
         ifEndTok = self.expect(TokenKind.RBRACE)
+
+        # check for 'elif' block
+        elifClauses = []
+        while self.currTokenKind() == TokenKind.ELIF:
+            # consume ELIF token
+            elifStartTok = self.advance()
+            # expect ( for start of condition
+            self.expect(TokenKind.LPAREN)
+            # parse the condition
+            elifCondition = self.parseExpr()
+            # expect ) for end of condition and { for start of block
+            self.expect(TokenKind.RPAREN)
+            self.expect(TokenKind.LBRACE)
+            # parse statements until }
+            elifStmts = []
+            while self.currTokenKind() not in {TokenKind.RBRACE, TokenKind.EOF}:
+                elifStmts.append(self.parseStatement())
+            # expect closing }
+            elifEndTok = self.expect(TokenKind.RBRACE)
+
+            elifClause = ElifClause(
+                condition=elifCondition,
+                body=tuple(elifStmts),
+                start=elifStartTok.start,
+                end=elifEndTok.end,
+            )
+            elifClauses.append(elifClause)
 
         # check for 'else' block
         if self.currTokenKind() == TokenKind.ELSE:
@@ -227,8 +255,9 @@ class Parser:
             elseEndTok = self.expect(TokenKind.RBRACE)
 
             return IfStmt(
-                condition=condition,
+                condition=ifCondition,
                 ifBody=tuple(ifStmts),
+                elifClauses=tuple(elifClauses),
                 elseBody=tuple(elseStmts),
                 start=ifStartTok.start,
                 end=elseEndTok.end,
@@ -236,11 +265,12 @@ class Parser:
 
         else:
             return IfStmt(
-                condition=condition,
+                condition=ifCondition,
                 ifBody=tuple(ifStmts),
+                elifClauses=tuple(elifClauses),
                 elseBody=None,
                 start=ifStartTok.start,
-                end=ifEndTok.end,
+                end=elifEndTok.end if len(elifClauses) > 0 else ifEndTok.end,
             )
 
 
@@ -315,19 +345,55 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
                 is_last=True,
             )
 
-        case IfStmt(condition=condition, ifBody=ifBody, elseBody=elseBody):
+        case IfStmt(
+            condition=condition,
+            ifBody=ifBody,
+            elifClauses=elifClauses,
+            elseBody=elseBody,
+        ):
+            hasElif = len(elifClauses) > 0
+            hasElse = elseBody is not None
+
             print(prefix + connector + "IF")
-            pretty(condition, child_prefix, is_root=False, is_last=len(ifBody) == 0)
+            pretty(
+                condition,
+                child_prefix,
+                is_root=False,
+                is_last=len(ifBody) == 0 and not hasElif and not hasElse,
+            )
+
             for i, stmt in enumerate(ifBody):
-                pretty(stmt, child_prefix, is_root=False, is_last=i == len(ifBody) - 1)
-            if elseBody is not None:
-                print(prefix + connector + "ELSE")
-                for i, stmt in enumerate(elseBody):
+                is_last_stmt = i == len(ifBody) - 1 and not hasElif and not hasElse
+                pretty(stmt, child_prefix, is_root=False, is_last=is_last_stmt)
+
+            for i, clause in enumerate(elifClauses):
+                is_last_clause = i == len(elifClauses) - 1 and not hasElse
+
+                print(child_prefix + ("└── " if is_last_clause else "├── ") + "ELIF")
+                elif_prefix = child_prefix + ("    " if is_last_clause else "│   ")
+
+                pretty(
+                    clause.condition,
+                    elif_prefix,
+                    is_root=False,
+                    is_last=len(clause.body) == 0,
+                )
+
+                for j, stmt in enumerate(clause.body):
                     pretty(
                         stmt,
-                        child_prefix,
+                        elif_prefix,
                         is_root=False,
-                        is_last=i == len(elseBody) - 1,
+                        is_last=j == len(clause.body) - 1,
+                    )
+
+            if hasElse:
+                print(child_prefix + "└── ELSE")
+                else_prefix = child_prefix + "    "
+
+                for i, stmt in enumerate(elseBody):
+                    pretty(
+                        stmt, else_prefix, is_root=False, is_last=i == len(elseBody) - 1
                     )
 
         case _:
