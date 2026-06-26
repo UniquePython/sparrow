@@ -154,20 +154,23 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
             ifCond = evaluate(condition, env)
 
             if ifCond.value:
+                blockEnv = Environment(parent=env)
                 for ifStmt in ifBody:
-                    execute(ifStmt, env)
+                    execute(ifStmt, blockEnv)
             else:
                 for elifClause in elifClauses:
                     elifCond = evaluate(elifClause.condition, env)
                     if elifCond.value:
+                        blockEnv = Environment(parent=env)
                         for elifStmt in elifClause.body:
-                            execute(elifStmt, env)
+                            execute(elifStmt, blockEnv)
                         break
 
                 else:
                     if elseBody is not None:
+                        blockEnv = Environment(parent=env)
                         for elseStmt in elseBody:
-                            execute(elseStmt, env)
+                            execute(elseStmt, blockEnv)
 
         case WhileStmt(
             condition=condition, body=whileBody, onstop=onstop, nostop=nostop
@@ -175,8 +178,9 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
             stoppedEarly = False
             while evaluate(condition, env).value:
                 try:
+                    blockEnv = Environment(parent=env)
                     for stmt in whileBody:
-                        execute(stmt, env)
+                        execute(stmt, blockEnv)
                 except SkipSignal:
                     continue
                 except StopSignal:
@@ -185,12 +189,14 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
 
             if stoppedEarly:
                 if onstop is not None:
+                    blockEnv = Environment(parent=env)
                     for stmt in onstop:
-                        execute(stmt, env)
+                        execute(stmt, blockEnv)
             else:
                 if nostop is not None:
+                    blockEnv = Environment(parent=env)
                     for stmt in nostop:
-                        execute(stmt, env)
+                        execute(stmt, blockEnv)
 
         case RepeatStmt(ntimes=ntimes, body=repeatBody, onstop=onstop, nostop=nostop):
             ntimesEvaluated = evaluate(ntimes, env)
@@ -205,8 +211,9 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
             stoppedEarly = False
             for _ in range(ntimesEvaluated.value):
                 try:
+                    blockEnv = Environment(parent=env)
                     for stmt in repeatBody:
-                        execute(stmt, env)
+                        execute(stmt, blockEnv)
                 except SkipSignal:
                     continue
                 except StopSignal:
@@ -215,12 +222,14 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
 
             if stoppedEarly:
                 if onstop is not None:
+                    blockEnv = Environment(parent=env)
                     for stmt in onstop:
-                        execute(stmt, env)
+                        execute(stmt, blockEnv)
             else:
                 if nostop is not None:
+                    blockEnv = Environment(parent=env)
                     for stmt in nostop:
-                        execute(stmt, env)
+                        execute(stmt, blockEnv)
 
         case StopStmt():
             raise StopSignal()
