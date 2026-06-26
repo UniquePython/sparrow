@@ -194,7 +194,9 @@ class Parser:
             return self.parseIfStatement(isUnless=True)
         # whileStmt
         elif self.currTokenKind() == TokenKind.WHILE:
-            return self.parseWhileStatement()
+            return self.parseWhileStatement(isUntil=False)
+        elif self.currTokenKind() == TokenKind.UNTIL:
+            return self.parseWhileStatement(isUntil=True)
         # exprStmt
         else:
             value = self.parseExpr()
@@ -259,7 +261,7 @@ class Parser:
             end=endTok.end,
         )
 
-    def parseWhileStatement(self) -> WhileStmt:
+    def parseWhileStatement(self, isUntil: bool) -> WhileStmt:
         # consume WHILE token
         whileStartTok = self.advance()
         # parse the condition
@@ -267,8 +269,19 @@ class Parser:
         # parse the block
         whileStmts, whileEndTok = self.parseBlock()
 
+        finalCondition = (
+            UnaryExpr(
+                UnaryOp.NOT,
+                whileCondition,
+                start=whileCondition.start,
+                end=whileCondition.end,
+            )
+            if isUntil
+            else whileCondition
+        )
+
         return WhileStmt(
-            condition=whileCondition,
+            condition=finalCondition,
             body=whileStmts,
             start=whileStartTok.start,
             end=whileEndTok.end,

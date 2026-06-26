@@ -30,6 +30,7 @@ class TokenKind(Enum):
     ELIF = auto()
     ELSE = auto()
     WHILE = auto()
+    UNTIL = auto()
     EOF = auto()
 
 
@@ -78,6 +79,7 @@ KEYWORDS_TO_TOKENKIND: dict[str, TokenKind] = {
     "elif": TokenKind.ELIF,
     "else": TokenKind.ELSE,
     "while": TokenKind.WHILE,
+    "until": TokenKind.UNTIL,
 }
 
 TOKEN_DISPLAY = {
@@ -108,5 +110,6 @@ TOKEN_DISPLAY = {
     TokenKind.ELIF: "elif",
     TokenKind.ELSE: "else",
     TokenKind.WHILE: "while",
+    TokenKind.UNTIL: "until",
     TokenKind.EOF: "end of file",
 }
