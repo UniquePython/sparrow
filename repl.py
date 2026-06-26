@@ -1,20 +1,21 @@
 from environment import Environment
-from errors import SparrowError, formatError
+from errors import SparrowError, SparrowParseError, formatError
 from evaluator import execute
 from parser import parseProgram, pretty
 from tokenizer import tokenize
 from values import Value
 
 
-def run(src: str, env: Environment) -> list[Value]:
+def run(src: str, prevStmtCount: int, env: Environment) -> tuple[list[Value], int]:
     tokens = tokenize(src)
     ast = parseProgram(tokens)
+    newStmts = ast[prevStmtCount:]
     out = []
-    for stmt in ast:
+    for stmt in newStmts:
         res = execute(stmt, env)
         if res is not None:
             out.append(res)
-    return out
+    return out, len(ast)
 
 
 def dumpTokens(src: str) -> None:
@@ -50,6 +51,8 @@ def dumpEnv(env: Environment) -> None:
 
 def main() -> None:
     env = Environment()
+    fullSrc = ""
+    prevStmtCount = 0
 
     while True:
         try:
@@ -116,12 +119,35 @@ def main() -> None:
                 print(f"Unknown command {command!r}")
                 continue
 
-            outs = run(src, env)
-            for out in outs:
-                print(out)
+            fullSrc += line + "\n"
+
+            while True:
+                try:
+                    outs, prevStmtCount = run(fullSrc, prevStmtCount, env)
+                    for out in outs:
+                        print(out)
+                    break
+                except SparrowParseError as e:
+                    if "end of file" in e.message:
+                        try:
+                            pendingLine = input("... ")
+                        except (EOFError, KeyboardInterrupt):
+                            fullSrc = fullSrc[: -len(line) - 1]
+                            print()
+                            break
+                        fullSrc += pendingLine + "\n"
+                        line += "\n" + pendingLine
+                    else:
+                        fullSrc = fullSrc[: -len(line) - 1]
+                        print(formatError(e, fullSrc + line))
+                        break
+                except SparrowError as e:
+                    fullSrc = fullSrc[: -len(line) - 1]
+                    print(formatError(e, fullSrc + line))
+                    break
 
         except SparrowError as e:
-            print(formatError(e, src))
+            print(formatError(e, fullSrc))
 
 
 if __name__ == "__main__":
