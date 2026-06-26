@@ -19,6 +19,7 @@ class BinaryOp(Enum):
 
 class UnaryOp(Enum):
     NEG = auto()
+    NOT = auto()
 
 
 Expr = Union[

@@ -32,9 +32,7 @@ INFIX_BINDING_POWER = {
     TokenKind.PERCENT: 5,
 }
 
-PREFIX_BINDING_POWER = {
-    TokenKind.MINUS: 7,
-}
+PREFIX_BINDING_POWER = {TokenKind.MINUS: 7, TokenKind.NOT: 7}
 
 TOKEN_TO_BINARY_OP = {
     TokenKind.PLUS: BinaryOp.ADD,
@@ -52,6 +50,7 @@ TOKEN_TO_BINARY_OP = {
 
 TOKEN_TO_UNARY_OP = {
     TokenKind.MINUS: UnaryOp.NEG,
+    TokenKind.NOT: UnaryOp.NOT,
 }
 
 

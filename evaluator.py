@@ -43,6 +43,10 @@ def neg(x: IntValue) -> IntValue:
     return IntValue(-x.value)
 
 
+def lnot(x: BooleanValue) -> BooleanValue:
+    return BooleanValue(not x.value)
+
+
 def eqeq(a: IntValue, b: IntValue) -> BooleanValue:
     return BooleanValue(a.value == b.value)
 
@@ -83,6 +87,7 @@ BINARY_OPS = {
 
 UNARY_OPS = {
     UnaryOp.NEG: neg,
+    UnaryOp.NOT: lnot,
 }
 
 
