@@ -14,6 +14,7 @@ from ast_node import (
     Stmt,
     UnaryExpr,
     UnaryOp,
+    WhileStmt,
 )
 from errors import SparrowParseError
 from tokens import TOKEN_DISPLAY, Token, TokenKind
@@ -191,6 +192,9 @@ class Parser:
             return self.parseIfStatement(isUnless=False)
         elif self.currTokenKind() == TokenKind.UNLESS:
             return self.parseIfStatement(isUnless=True)
+        # whileStmt
+        elif self.currTokenKind() == TokenKind.WHILE:
+            return self.parseWhileStatement()
         # exprStmt
         else:
             value = self.parseExpr()
@@ -253,6 +257,21 @@ class Parser:
             elseBody=elseBody,
             start=ifStartTok.start,
             end=endTok.end,
+        )
+
+    def parseWhileStatement(self) -> WhileStmt:
+        # consume WHILE token
+        whileStartTok = self.advance()
+        # parse the condition
+        whileCondition = self.parseCondition()
+        # parse the block
+        whileStmts, whileEndTok = self.parseBlock()
+
+        return WhileStmt(
+            condition=whileCondition,
+            body=whileStmts,
+            start=whileStartTok.start,
+            end=whileEndTok.end,
         )
 
     def parseCondition(self) -> Expr:
@@ -398,6 +417,12 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
                     pretty(
                         stmt, else_prefix, is_root=False, is_last=i == len(elseBody) - 1
                     )
+
+        case WhileStmt(condition=condition, body=body):
+            print(prefix + connector + "WHILE")
+            pretty(condition, child_prefix, is_root=False, is_last=len(body) == 0)
+            for i, stmt in enumerate(body):
+                pretty(stmt, child_prefix, is_root=False, is_last=i == len(body) - 1)
 
         case _:
             raise AssertionError(f"unhandled node type: {type(node).__name__}")

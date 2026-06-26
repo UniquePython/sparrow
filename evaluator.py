@@ -13,6 +13,7 @@ from ast_node import (
     Stmt,
     UnaryExpr,
     UnaryOp,
+    WhileStmt,
 )
 from environment import Environment
 from errors import SparrowRuntimeError
@@ -157,6 +158,11 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
                     if elseBody is not None:
                         for elseStmt in elseBody:
                             execute(elseStmt, env)
+
+        case WhileStmt(condition=condition, body=whileBody):
+            while evaluate(condition, env).value:
+                for stmt in whileBody:
+                    execute(stmt, env)
 
         case _:
             raise AssertionError(f"unhandled node type: {type(stmt).__name__}")

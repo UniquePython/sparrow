@@ -65,7 +65,7 @@ class IdentifierExpr:
     end: int
 
 
-Stmt = Union["AssignStmt", "ExprStmt", "IfStmt"]
+Stmt = Union["AssignStmt", "ExprStmt", "IfStmt", "WhileStmt"]
 
 
 @dataclass(frozen=True)
@@ -97,5 +97,13 @@ class IfStmt:
     ifBody: tuple[Stmt, ...]
     elifClauses: Optional[tuple[ElifClause, ...]]
     elseBody: Optional[tuple[Stmt, ...]]
+    start: int
+    end: int
+
+
+@dataclass(frozen=True)
+class WhileStmt:
+    condition: Expr
+    body: tuple[Stmt, ...]
     start: int
     end: int
