@@ -63,45 +63,42 @@ class Parser:
         self.tokens = tokens
         self.pos = 0
 
-    def currToken(self) -> Token:
-        return self.tokens[self.pos]
+    def peekToken(self, offset: int = 0) -> Token:
+        pos = self.pos + offset
+        if pos >= len(self.tokens):
+            return self.tokens[-1]  # EOF token is always last
+        return self.tokens[pos]
 
-    def currTokenKind(self) -> TokenKind:
-        return self.currToken().kind
-
-    def nextToken(self) -> Token:
-        return self.tokens[self.pos + 1]
-
-    def nextTokenKind(self) -> TokenKind:
-        return self.nextToken().kind
+    def peekTokenKind(self, offset: int = 0) -> TokenKind:
+        return self.peekToken(offset).kind
 
     def advance(self) -> Token:
-        tok = self.currToken()
+        tok = self.peekToken()
         self.pos += 1
         return tok
 
     def expect(self, kind: TokenKind) -> Token:
-        if self.currTokenKind() == kind:
+        if self.peekTokenKind() == kind:
             return self.advance()
 
         else:
             raise SparrowParseError(
-                f"Expected {TOKEN_DISPLAY[kind]!r} but got {TOKEN_DISPLAY[self.currTokenKind()]!r} instead",
-                self.currToken().start,
-                self.currToken().end,
+                f"Expected {TOKEN_DISPLAY[kind]!r} but got {TOKEN_DISPLAY[self.peekTokenKind()]!r} instead",
+                self.peekToken().start,
+                self.peekToken().end,
             )
 
     def parsePrefix(self) -> Expr:
-        if self.currTokenKind() == TokenKind.NUMBER:
+        if self.peekTokenKind() == TokenKind.NUMBER:
             tok = self.advance()
             return NumberLiteral(value=tok.value, start=tok.start, end=tok.end)
 
-        elif self.currTokenKind() in {TokenKind.TRUE, TokenKind.FALSE}:
+        elif self.peekTokenKind() in {TokenKind.TRUE, TokenKind.FALSE}:
             tok = self.advance()
             value = tok.value == "true"
             return BoolLiteral(value=value, start=tok.start, end=tok.end)
 
-        elif self.currTokenKind() == TokenKind.LPAREN:
+        elif self.peekTokenKind() == TokenKind.LPAREN:
             # consume LPAREN
             self.advance()
 
@@ -113,11 +110,11 @@ class Parser:
 
             return result
 
-        elif self.currTokenKind() == TokenKind.IDENTIFIER:
+        elif self.peekTokenKind() == TokenKind.IDENTIFIER:
             tok = self.advance()
             return IdentifierExpr(name=tok.value, start=tok.start, end=tok.end)
 
-        elif self.currTokenKind() in PREFIX_BINDING_POWER:
+        elif self.peekTokenKind() in PREFIX_BINDING_POWER:
             opTok = self.advance()
             bp = PREFIX_BINDING_POWER[opTok.kind]
             operand = self.parseExpr(bp)
@@ -129,7 +126,7 @@ class Parser:
             )
 
         else:
-            tok = self.currToken()
+            tok = self.peekToken()
 
             if tok.kind == TokenKind.EOF:
                 raise SparrowParseError(
@@ -148,7 +145,7 @@ class Parser:
         left = self.parsePrefix()
 
         while True:
-            kind = self.currTokenKind()
+            kind = self.peekTokenKind()
             if kind not in INFIX_BINDING_POWER:
                 break
 
@@ -175,8 +172,8 @@ class Parser:
     def parseStatement(self) -> Stmt:
         # assignStmt
         if (
-            self.currTokenKind() == TokenKind.IDENTIFIER
-            and self.nextTokenKind() == TokenKind.EQ
+            self.peekTokenKind() == TokenKind.IDENTIFIER
+            and self.peekTokenKind(1) == TokenKind.EQ
         ):
             identifierTok = self.advance()
             self.expect(TokenKind.EQ)
@@ -191,25 +188,25 @@ class Parser:
                 end=value.end,
             )
         # ifStmt
-        elif self.currTokenKind() == TokenKind.IF:
+        elif self.peekTokenKind() == TokenKind.IF:
             return self.parseIfStatement(isUnless=False)
-        elif self.currTokenKind() == TokenKind.UNLESS:
+        elif self.peekTokenKind() == TokenKind.UNLESS:
             return self.parseIfStatement(isUnless=True)
         # whileStmt
-        elif self.currTokenKind() == TokenKind.WHILE:
+        elif self.peekTokenKind() == TokenKind.WHILE:
             return self.parseWhileStatement(isUntil=False)
-        elif self.currTokenKind() == TokenKind.UNTIL:
+        elif self.peekTokenKind() == TokenKind.UNTIL:
             return self.parseWhileStatement(isUntil=True)
-        elif self.currTokenKind() == TokenKind.FOREVER:
+        elif self.peekTokenKind() == TokenKind.FOREVER:
             return self.parseForeverStatement()
         # repeatStmt
-        elif self.currTokenKind() == TokenKind.REPEAT:
+        elif self.peekTokenKind() == TokenKind.REPEAT:
             return self.parseRepeatStatement()
         # stopStmt
-        elif self.currTokenKind() == TokenKind.STOP:
+        elif self.peekTokenKind() == TokenKind.STOP:
             return self.parseStopStatement()
         # skipStmt
-        elif self.currTokenKind() == TokenKind.SKIP:
+        elif self.peekTokenKind() == TokenKind.SKIP:
             return self.parseSkipStatement()
         # exprStmt
         else:
@@ -228,7 +225,7 @@ class Parser:
 
         # check for 'elif' block
         elifClauses = []
-        while self.currTokenKind() == TokenKind.ELIF:
+        while self.peekTokenKind() == TokenKind.ELIF:
             # consume ELIF token
             elifStartTok = self.advance()
             # parse the condition
@@ -259,7 +256,7 @@ class Parser:
         endTok = elifEndTok if len(elifClauses) > 0 else ifEndTok
 
         # check for 'else' block
-        if self.currTokenKind() == TokenKind.ELSE:
+        if self.peekTokenKind() == TokenKind.ELSE:
             # consume ELSE token
             self.advance()
             # parse the block
@@ -285,11 +282,11 @@ class Parser:
 
         onstopStmts = nostopStmts = None
 
-        if self.currTokenKind() == TokenKind.ONSTOP:
+        if self.peekTokenKind() == TokenKind.ONSTOP:
             self.advance()
             onstopStmts, endTok = self.parseBlock()
 
-        if self.currTokenKind() == TokenKind.NOSTOP:
+        if self.peekTokenKind() == TokenKind.NOSTOP:
             self.advance()
             nostopStmts, endTok = self.parseBlock()
 
@@ -321,11 +318,11 @@ class Parser:
 
         onstopStmts = nostopStmts = None
 
-        if self.currTokenKind() == TokenKind.ONSTOP:
+        if self.peekTokenKind() == TokenKind.ONSTOP:
             self.advance()
             onstopStmts, endTok = self.parseBlock()
 
-        if self.currTokenKind() == TokenKind.NOSTOP:
+        if self.peekTokenKind() == TokenKind.NOSTOP:
             self.advance()
             nostopStmts, endTok = self.parseBlock()
 
@@ -348,11 +345,11 @@ class Parser:
 
         onstopStmts = nostopStmts = None
 
-        if self.currTokenKind() == TokenKind.ONSTOP:
+        if self.peekTokenKind() == TokenKind.ONSTOP:
             self.advance()
             onstopStmts, endTok = self.parseBlock()
 
-        if self.currTokenKind() == TokenKind.NOSTOP:
+        if self.peekTokenKind() == TokenKind.NOSTOP:
             self.advance()
             nostopStmts, endTok = self.parseBlock()
 
@@ -386,7 +383,7 @@ class Parser:
 
         stmts = []
 
-        while self.currTokenKind() not in {
+        while self.peekTokenKind() not in {
             TokenKind.RBRACE,
             TokenKind.EOF,
         }:
@@ -400,7 +397,7 @@ class Parser:
 def parseProgram(tokens: list[Token]) -> list[Stmt]:
     parser = Parser(tokens)
     statements = []
-    while parser.currTokenKind() != TokenKind.EOF:
+    while parser.peekTokenKind() != TokenKind.EOF:
         statements.append(parser.parseStatement())
     return statements
 
