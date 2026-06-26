@@ -188,7 +188,9 @@ class Parser:
             )
         # ifStmt
         elif self.currTokenKind() == TokenKind.IF:
-            return self.parseIfStatement()
+            return self.parseConditionalStatement(isUnless=False)
+        elif self.currTokenKind() == TokenKind.UNLESS:
+            return self.parseConditionalStatement(isUnless=True)
         # exprStmt
         else:
             value = self.parseExpr()
@@ -196,7 +198,7 @@ class Parser:
 
             return ExprStmt(expr=value, start=value.start, end=value.end)
 
-    def parseIfStatement(self) -> IfStmt:
+    def parseConditionalStatement(self, isUnless: bool) -> IfStmt:
         # consume IF token
         ifStartTok = self.advance()
         # expect ( for start of condition
@@ -240,6 +242,14 @@ class Parser:
             )
             elifClauses.append(elifClause)
 
+        finalCondition = (
+            UnaryExpr(
+                UnaryOp.NOT, ifCondition, start=ifCondition.start, end=ifCondition.end
+            )
+            if isUnless
+            else ifCondition
+        )
+
         # check for 'else' block
         if self.currTokenKind() == TokenKind.ELSE:
             # consume ELSE token
@@ -254,7 +264,7 @@ class Parser:
             elseEndTok = self.expect(TokenKind.RBRACE)
 
             return IfStmt(
-                condition=ifCondition,
+                condition=finalCondition,
                 ifBody=tuple(ifStmts),
                 elifClauses=tuple(elifClauses),
                 elseBody=tuple(elseStmts),
@@ -264,7 +274,7 @@ class Parser:
 
         else:
             return IfStmt(
-                condition=ifCondition,
+                condition=finalCondition,
                 ifBody=tuple(ifStmts),
                 elifClauses=tuple(elifClauses),
                 elseBody=None,
