@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
