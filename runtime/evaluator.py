@@ -114,13 +114,9 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
             result = evaluate(value, env)
             env.assign(name, result, start, end)
 
-            return result
-
         case VarDeclStmt(type=type, name=name, value=value, start=start, end=end):
             result = evaluate(value, env)
             env.declare(name, type, result, start, end)
-
-            return result
 
         case FuncDeclStmt(
             name=name,
@@ -134,7 +130,6 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
                 params=params, returnType=returnType, body=body, closure=env
             )
             env.declare(name, "function", funcValue, start, end)
-            return funcValue
 
         case ReturnStmt(value=value, start=start, end=end):
             val = None
