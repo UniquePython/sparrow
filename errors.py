@@ -1,3 +1,5 @@
+from bisect import bisect_right
+
 from runtime.values import Value
 
 
@@ -38,21 +40,24 @@ class SparrowRuntimeError(SparrowError):
     pass
 
 
-def offsetToLineCol(src: str, offset: int) -> tuple[int, int]:
-    newLines = 1
-    distSinceLastNewline = 1
-    for i in range(offset):
-        char = src[i]
-        if char == "\n":
-            newLines += 1
-            distSinceLastNewline = 1
-        else:
-            distSinceLastNewline += 1
-    return (newLines, distSinceLastNewline)
+def computeLineStarts(src: str) -> list[int]:
+    lineStarts = [0]
+    pos = src.find("\n")
+    while pos != -1:
+        lineStarts.append(pos + 1)
+        pos = src.find("\n", pos + 1)
+    return lineStarts
 
 
-def formatError(err: SparrowError, src: str) -> str:
-    line, col = offsetToLineCol(src, err.start)
+def offsetToLineCol(lineStarts: list[int], offset: int) -> tuple[int, int]:
+    lineIdx = bisect_right(lineStarts, offset) - 1
+    line = lineIdx + 1
+    column = offset - lineStarts[lineIdx] + 1
+    return (line, column)
+
+
+def formatError(err: SparrowError, src: str, lineStarts: list[int]) -> str:
+    line, col = offsetToLineCol(lineStarts, err.start)
 
     code = src.splitlines()[line - 1]
 

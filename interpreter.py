@@ -1,6 +1,6 @@
 import sys
 
-from errors import SparrowError, formatError
+from errors import SparrowError, computeLineStarts, formatError
 from frontend.lexer.tokenizer import tokenize
 from frontend.parser.parser import parseProgram
 from runtime.environment import Environment
@@ -19,13 +19,20 @@ def main() -> None:
     with open(path, "r") as file:
         src = file.read()
 
+    lineStarts = computeLineStarts(src)
+
     # 2. tokenize + parse (catch SparrowError -> formatError -> print -> exit)
     try:
         tokens = tokenize(src)
+    except SparrowError as e:
+        print(formatError(e, src, lineStarts))
+        exit(2)
+
+    try:
         ast = parseProgram(tokens)
     except SparrowError as e:
-        print(formatError(e, src))
-        exit(2)
+        print(formatError(e, src, lineStarts))
+        exit(3)
 
     # 3. typecheck every statement against one fresh TypeEnvironment (catch + report + exit on failure)
     typeEnv = TypeEnvironment()
@@ -37,19 +44,19 @@ def main() -> None:
                 False,
             )
         except SparrowError as e:
-            print(formatError(e, src))
-            exit(3)
+            print(formatError(e, src, lineStarts))
+            exit(4)
 
     # 4. only if all passed: execute every statement against one fresh Environment, print non-None results
     env = Environment()
-    outs = []
     for stmt in ast:
-        out = execute(stmt, env)
-        if out is not None:
-            outs.append(out)
-
-    for out in outs:
-        print(out)
+        try:
+            out = execute(stmt, env)
+            if out is not None:
+                print(out)
+        except SparrowError as e:
+            print(formatError(e, src, lineStarts))
+            exit(5)
 
 
 if __name__ == "__main__":
