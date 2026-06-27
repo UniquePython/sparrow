@@ -1,18 +1,31 @@
+from typing import Optional
+
 from errors import SparrowTypeError
 from frontend.ast import (
+    AssignStmt,
     BinaryExpr,
     BinaryOp,
     BoolLiteral,
     Expr,
+    ExprStmt,
     FuncCallExpr,
+    FuncDeclStmt,
     IdentifierExpr,
+    IfStmt,
     NumberLiteral,
+    RepeatStmt,
+    ReturnStmt,
+    SkipStmt,
     Stmt,
+    StopStmt,
     UnaryExpr,
     UnaryOp,
+    VarDeclStmt,
+    WhileStmt,
 )
 from semantic.type_environment import TypeEnvironment
-from semantic.types_ import Bool, FuncType, Int, Type
+from semantic.type_registry import Registry
+from semantic.types_ import Bool, FuncType, Int, Nothing, Type
 
 BINARY_ARITHMETIC_OPS = {
     BinaryOp.ADD,
@@ -67,7 +80,7 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
                 )
 
             if operator in BINARY_ARITHMETIC_OPS:
-                return Int if lhsType is Int else Bool
+                return Int if lhsType == Int else Bool
             elif operator in BINARY_COMPARISON_OPS:
                 return Bool
             else:
@@ -77,7 +90,7 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
             operandType = checkExpr(operand, env)
 
             if operator in UNARY_ARITHMETIC_OPS:
-                if operandType is not Int:
+                if operandType != Int:
                     raise SparrowTypeError(
                         f"Expected 'Int', found {operandType!r} instead",
                         operand.start,
@@ -85,7 +98,7 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
                     )
                 return Int
             elif operator in UNARY_LOGICAL_OPS:
-                if operandType is not Bool:
+                if operandType != Bool:
                     raise SparrowTypeError(
                         f"Expected 'Bool', found {operandType!r} instead",
                         operand.start,
@@ -134,5 +147,175 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
             raise AssertionError(f"unhandled expr type: {type(expr).__name__}")
 
 
-def checkStmt(stmt: Stmt, env: TypeEnvironment) -> None:
-    pass
+def checkBlock(
+    block: list[Stmt],
+    parentEnv: TypeEnvironment,
+    expectedReturnType: Optional[Type],
+    insideLoop: bool,
+) -> None:
+    blockEnv = TypeEnvironment(parent=parentEnv)
+    for stmt in block:
+        checkStmt(stmt, blockEnv, insideLoop, expectedReturnType)
+
+
+def checkCondition(condition: Expr, expectedType: Type, env: TypeEnvironment) -> None:
+    conditionType = checkExpr(condition, env)
+    if conditionType != expectedType:
+        raise SparrowTypeError(
+            f"Condition must evaluate to a '{expectedType}'",
+            condition.start,
+            condition.end,
+        )
+
+
+def checkStmt(
+    stmt: Stmt,
+    env: TypeEnvironment,
+    insideLoop: bool,
+    expectedReturnType: Optional[Type] = None,
+) -> None:
+    match stmt:
+        case AssignStmt(name=name, value=value, start=start, end=end):
+            existingType = env.type(name, start, end)
+            newValueType = checkExpr(value, env)
+
+            if existingType != newValueType:
+                raise SparrowTypeError(
+                    f"Expected variable '{name}' to be assigned with type '{existingType}' but found type '{newValueType}' instead",
+                    value.start,
+                    value.end,
+                )
+
+        case VarDeclStmt(type=type, name=name, value=value, start=start, end=end):
+            declaredType = Registry.resolve(type, start, end)
+
+            if declaredType == Nothing:
+                raise SparrowTypeError(
+                    "Cannot declare a variable of type 'Nothing'", start, end
+                )
+
+            valueType = checkExpr(value, env)
+
+            if declaredType != valueType:
+                raise SparrowTypeError(
+                    f"Expected variable '{name}' to be initialized with type '{declaredType}' but found type '{valueType}' instead",
+                    value.start,
+                    value.end,
+                )
+
+            env.declare(name, declaredType, start, end)
+
+        case FuncDeclStmt(
+            name=name,
+            params=params,
+            returnType=returnType,
+            body=body,
+            start=start,
+            end=end,
+        ):
+
+            returnTypeResolved = Registry.resolve(returnType, start, end)
+            paramTypes = []
+            for param in params:
+                paramType = Registry.resolve(param.type, param.start, param.end)
+                paramTypes.append(paramType)
+
+            funcType = FuncType(paramTypes, returnTypeResolved)
+
+            env.declare(name, funcType, start, end)
+
+            funcEnv = TypeEnvironment(parent=env)
+
+            for i in range(len(params)):
+                param = params[i]
+                paramType = paramTypes[i]
+                funcEnv.declare(param.name, paramType, param.start, param.end)
+
+            for stmt in body:
+                checkStmt(stmt, funcEnv, False, returnTypeResolved)
+
+        case ReturnStmt(value=value, start=start, end=end):
+            if expectedReturnType is None:
+                raise SparrowTypeError(
+                    "Found illegal 'return' outside a function", start, end
+                )
+
+            if expectedReturnType == Nothing and value is not None:
+                valueType = checkExpr(value, env)
+                raise SparrowTypeError(
+                    f"Expected to return 'Nothing' but returned '{valueType}' instead",
+                    start,
+                    end,
+                )
+
+            if expectedReturnType != Nothing:
+                if value is None:
+                    raise SparrowTypeError(
+                        f"Expected to return '{expectedReturnType}' but returned 'Nothing' instead",
+                        start,
+                        end,
+                    )
+
+                valueType = checkExpr(value, env)
+                if expectedReturnType != valueType:
+                    raise SparrowTypeError(
+                        f"Expected to return {expectedReturnType} but returned '{valueType}' instead",
+                        start,
+                        end,
+                    )
+
+        case ExprStmt(expr=expr):
+            checkExpr(expr, env)
+
+        case IfStmt(
+            condition=condition,
+            ifBody=ifBody,
+            elifClauses=elifClauses,
+            elseBody=elseBody,
+        ):
+            checkCondition(condition, Bool, env)
+            checkBlock(ifBody, env, expectedReturnType, insideLoop)
+
+            for elifClause in elifClauses:
+                checkCondition(elifClause.condition, Bool, env)
+                checkBlock(elifClause.body, env, expectedReturnType, insideLoop)
+
+            if elseBody is not None:
+                checkBlock(elseBody, env, expectedReturnType, insideLoop)
+
+        case WhileStmt(
+            condition=condition, body=whileBody, onstop=onstop, nostop=nostop
+        ):
+            checkCondition(condition, Bool, env)
+            checkBlock(whileBody, env, expectedReturnType, insideLoop=True)
+
+            if onstop is not None:
+                checkBlock(onstop, env, expectedReturnType, insideLoop=False)
+
+            if nostop is not None:
+                checkBlock(nostop, env, expectedReturnType, insideLoop=False)
+
+        case RepeatStmt(ntimes=ntimes, body=repeatBody, onstop=onstop, nostop=nostop):
+            checkCondition(ntimes, Int, env)
+            checkBlock(repeatBody, env, expectedReturnType, insideLoop=True)
+
+            if onstop is not None:
+                checkBlock(onstop, env, expectedReturnType, insideLoop=False)
+
+            if nostop is not None:
+                checkBlock(nostop, env, expectedReturnType, insideLoop=False)
+
+        case StopStmt(start=start, end=end):
+            if not insideLoop:
+                raise SparrowTypeError(
+                    "Stop statement cannot be used outside a loop", start, end
+                )
+
+        case SkipStmt(start=start, end=end):
+            if not insideLoop:
+                raise SparrowTypeError(
+                    "Skip statement cannot be used outside a loop", start, end
+                )
+
+        case _:
+            raise AssertionError(f"unhandled stmt type: {type(stmt).__name__}")
