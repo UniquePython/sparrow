@@ -71,7 +71,7 @@ SINGLE_CHAR_TOKENS = {
     ",": TokenKind.COMMA,
 }
 
-MULTI_CHAR_TOKENS = {
+LOOKAHEAD_TOKENS = {
     "=": TokenKind.EQ,
     "==": TokenKind.EQEQ,
     "<": TokenKind.LT,

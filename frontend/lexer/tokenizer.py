@@ -3,7 +3,7 @@ from string import ascii_lowercase, ascii_uppercase, digits
 from errors import SparrowLexError
 from frontend.lexer.tokens import (
     KEYWORDS_TO_TOKENKIND,
-    MULTI_CHAR_TOKENS,
+    LOOKAHEAD_TOKENS,
     SINGLE_CHAR_TOKENS,
     Token,
     TokenKind,
@@ -61,13 +61,13 @@ def tokenize(src: str) -> list[Token]:
                 tokens.append(Token(TokenKind.IDENTIFIER, identifier, start, cursor))
 
         # handle multi-char tokens
-        elif char in MULTI_CHAR_TOKENS:
+        elif char in LOOKAHEAD_TOKENS:
             unit = src[cursor : cursor + 2] if cursor + 1 < srcLen else char
-            if unit in MULTI_CHAR_TOKENS:
-                tokens.append(Token(MULTI_CHAR_TOKENS[unit], unit, cursor, cursor + 2))
+            if unit in LOOKAHEAD_TOKENS:
+                tokens.append(Token(LOOKAHEAD_TOKENS[unit], unit, cursor, cursor + 2))
                 cursor += 2
             else:
-                tokens.append(Token(MULTI_CHAR_TOKENS[char], char, cursor, cursor + 1))
+                tokens.append(Token(LOOKAHEAD_TOKENS[char], char, cursor, cursor + 1))
                 cursor += 1
 
         # handle single-char tokens
