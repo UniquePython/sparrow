@@ -12,7 +12,7 @@ from ast_node import (
 )
 from errors import SparrowTypeError
 from type_environment import TypeEnvironment
-from types_ import Bool, Func, Int, Type
+from types_ import Bool, FuncType, Int, Type
 
 BINARY_ARITHMETIC_OPS = {
     BinaryOp.ADD,
@@ -101,7 +101,7 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
         case FuncCallExpr(name=name, args=args, start=start, end=end):
             funcType = env.type(name, start, end)
 
-            if funcType is not Func:
+            if type(funcType) is not FuncType:
                 raise SparrowTypeError(
                     f"Cannot call {env.symbolStr(funcType).lower()} {name!r} like a function",
                     start,

@@ -35,4 +35,3 @@ class FuncType:
 Int = IntType()
 Bool = BoolType()
 Nothing = NothingType()
-Func = FuncType()
