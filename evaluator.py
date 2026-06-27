@@ -1,5 +1,6 @@
 from typing import Optional
 
+import ops
 from ast_node import (
     AssignStmt,
     BinaryExpr,
@@ -26,76 +27,23 @@ from environment import Environment
 from errors import ReturnSignal, SkipSignal, SparrowRuntimeError, StopSignal
 from values import BoolValue, FuncValue, IntValue, Value
 
-
-def add(a: IntValue, b: IntValue) -> IntValue:
-    return IntValue(a.value + b.value)
-
-
-def sub(a: IntValue, b: IntValue) -> IntValue:
-    return IntValue(a.value - b.value)
-
-
-def mul(a: IntValue, b: IntValue) -> IntValue:
-    return IntValue(a.value * b.value)
-
-
-def div(a: IntValue, b: IntValue) -> IntValue:
-    return IntValue(int(a.value / b.value))
-
-
-def mod(a: IntValue, b: IntValue) -> IntValue:
-    return IntValue(a.value - div(a, b).value * b.value)
-
-
-def neg(x: IntValue) -> IntValue:
-    return IntValue(-x.value)
-
-
-def lnot(x: BoolValue) -> BoolValue:
-    return BoolValue(not x.value)
-
-
-def eqeq(a: IntValue, b: IntValue) -> BoolValue:
-    return BoolValue(a.value == b.value)
-
-
-def neq(a: IntValue, b: IntValue) -> BoolValue:
-    return BoolValue(a.value != b.value)
-
-
-def lt(a: IntValue, b: IntValue) -> BoolValue:
-    return BoolValue(a.value < b.value)
-
-
-def le(a: IntValue, b: IntValue) -> BoolValue:
-    return BoolValue(a.value <= b.value)
-
-
-def gt(a: IntValue, b: IntValue) -> BoolValue:
-    return BoolValue(a.value > b.value)
-
-
-def ge(a: IntValue, b: IntValue) -> BoolValue:
-    return BoolValue(a.value >= b.value)
-
-
 BINARY_OPS = {
-    BinaryOp.ADD: add,
-    BinaryOp.SUB: sub,
-    BinaryOp.MUL: mul,
-    BinaryOp.DIV: div,
-    BinaryOp.MOD: mod,
-    BinaryOp.EQEQ: eqeq,
-    BinaryOp.NEQ: neq,
-    BinaryOp.LT: lt,
-    BinaryOp.LE: le,
-    BinaryOp.GT: gt,
-    BinaryOp.GE: ge,
+    BinaryOp.ADD: ops.add,
+    BinaryOp.SUB: ops.sub,
+    BinaryOp.MUL: ops.mul,
+    BinaryOp.DIV: ops.div,
+    BinaryOp.MOD: ops.mod,
+    BinaryOp.EQEQ: ops.eqeq,
+    BinaryOp.NEQ: ops.neq,
+    BinaryOp.LT: ops.lt,
+    BinaryOp.LE: ops.le,
+    BinaryOp.GT: ops.gt,
+    BinaryOp.GE: ops.ge,
 }
 
 UNARY_OPS = {
-    UnaryOp.NEG: neg,
-    UnaryOp.NOT: lnot,
+    UnaryOp.NEG: ops.neg,
+    UnaryOp.NOT: ops.lnot,
 }
 
 
@@ -111,12 +59,19 @@ def evaluate(node: Expr, env: Environment) -> Value:
             lhs = evaluate(left, env)
             rhs = evaluate(right, env)
 
-            if operator in {BinaryOp.DIV, BinaryOp.MOD} and rhs.value == 0:
-                raise SparrowRuntimeError(
-                    "Cannot divide by 0",
-                    right.start,
-                    right.end,
-                )
+            if operator in {BinaryOp.DIV, BinaryOp.MOD}:
+                if isinstance(rhs, IntValue) and rhs.value == 0:
+                    raise SparrowRuntimeError(
+                        "Cannot divide by 0",
+                        right.start,
+                        right.end,
+                    )
+                if isinstance(rhs, BoolValue) and not rhs.value:
+                    raise SparrowRuntimeError(
+                        "Cannot divide by false",
+                        right.start,
+                        right.end,
+                    )
 
             return BINARY_OPS[operator](lhs, rhs)
 
