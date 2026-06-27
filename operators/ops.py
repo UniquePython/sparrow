@@ -1,6 +1,6 @@
-import boolops
-import intops
-from values import BoolValue, IntValue
+import operators.boolops as boolops
+import operators.intops as intops
+from runtime.values import BoolValue, IntValue
 
 
 def add(a: IntValue | BoolValue, b: IntValue | BoolValue) -> IntValue | BoolValue:

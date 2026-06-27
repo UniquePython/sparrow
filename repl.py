@@ -1,9 +1,9 @@
-from environment import Environment
 from errors import SparrowError, SparrowParseError, formatError
-from evaluator import execute
-from parser import parseProgram, pretty
-from tokenizer import tokenize
-from values import Value
+from frontend.lexer.tokenizer import tokenize
+from frontend.parser.parser import parseProgram, pretty
+from runtime.environment import Environment
+from runtime.evaluator import execute
+from runtime.values import Value
 
 
 def run(src: str, prevStmtCount: int, env: Environment) -> tuple[list[Value], int]:

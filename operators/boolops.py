@@ -1,4 +1,4 @@
-from values import BoolValue
+from runtime.values import BoolValue
 
 BOOL_TO_INT: dict[bool, int] = {True: 1, False: 0}
 INT_TO_BOOL: dict[int, bool] = {v: k for k, v in BOOL_TO_INT.items()}

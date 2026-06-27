@@ -1,7 +1,7 @@
 from typing import Optional
 
 from errors import SparrowRuntimeError
-from types_ import BoolType, FuncType, IntType, NothingType, Type
+from semantic.types_ import BoolType, FuncType, IntType, NothingType, Type
 
 
 class TypeEnvironment:

@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Union
 
-from ast_node import Param, Stmt
+from frontend.ast import Param, Stmt
 
 if TYPE_CHECKING:
-    from environment import Environment
+    from runtime.environment import Environment
 
 
 @dataclass(frozen=True)

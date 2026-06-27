@@ -1,6 +1,7 @@
 from typing import Union
 
-from ast_node import (
+from errors import SparrowParseError
+from frontend.ast import (
     AssignStmt,
     BinaryExpr,
     BinaryOp,
@@ -24,8 +25,7 @@ from ast_node import (
     VarDeclStmt,
     WhileStmt,
 )
-from errors import SparrowParseError
-from tokens import TOKEN_DISPLAY, Token, TokenKind
+from frontend.lexer.tokens import TOKEN_DISPLAY, Token, TokenKind
 
 INFIX_BINDING_POWER = {
     TokenKind.EQEQ: 1,
@@ -742,6 +742,6 @@ def pretty(node: Union[Expr, Stmt], prefix="", is_root=True, is_last=True) -> No
 
 
 if __name__ == "__main__":
-    from tokenizer import tokenize
+    from frontend.lexer.tokenizer import tokenize
 
     pretty(parseProgram(tokenize("x + 1;")))

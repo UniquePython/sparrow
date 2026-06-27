@@ -1,7 +1,7 @@
 from typing import Optional
 
 from errors import SparrowRuntimeError
-from values import Value
+from runtime.values import Value
 
 
 class Environment:

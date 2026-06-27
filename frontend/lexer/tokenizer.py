@@ -1,7 +1,7 @@
 from string import ascii_lowercase, ascii_uppercase, digits
 
 from errors import SparrowLexError
-from tokens import (
+from frontend.lexer.tokens import (
     KEYWORDS_TO_TOKENKIND,
     MULTI_CHAR_TOKENS,
     SINGLE_CHAR_TOKENS,

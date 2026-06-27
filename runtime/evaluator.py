@@ -1,7 +1,8 @@
 from typing import Optional
 
-import ops
-from ast_node import (
+import operators.ops as ops
+from errors import ReturnSignal, SkipSignal, SparrowRuntimeError, StopSignal
+from frontend.ast import (
     AssignStmt,
     BinaryExpr,
     BinaryOp,
@@ -23,9 +24,8 @@ from ast_node import (
     VarDeclStmt,
     WhileStmt,
 )
-from environment import Environment
-from errors import ReturnSignal, SkipSignal, SparrowRuntimeError, StopSignal
-from values import BoolValue, FuncValue, IntValue, Value
+from runtime.environment import Environment
+from runtime.values import BoolValue, FuncValue, IntValue, Value
 
 BINARY_OPS = {
     BinaryOp.ADD: ops.add,

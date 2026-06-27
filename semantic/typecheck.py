@@ -1,4 +1,5 @@
-from ast_node import (
+from errors import SparrowTypeError
+from frontend.ast import (
     BinaryExpr,
     BinaryOp,
     BoolLiteral,
@@ -10,9 +11,8 @@ from ast_node import (
     UnaryExpr,
     UnaryOp,
 )
-from errors import SparrowTypeError
-from type_environment import TypeEnvironment
-from types_ import Bool, FuncType, Int, Type
+from semantic.type_environment import TypeEnvironment
+from semantic.types_ import Bool, FuncType, Int, Type
 
 BINARY_ARITHMETIC_OPS = {
     BinaryOp.ADD,
