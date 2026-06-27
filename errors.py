@@ -30,6 +30,10 @@ class SparrowParseError(SparrowError):
     pass
 
 
+class SparrowTypeError(SparrowError):
+    pass
+
+
 class SparrowRuntimeError(SparrowError):
     pass
 
