@@ -128,6 +128,8 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
                         arg.end,
                     )
 
+            return funcType.returnType
+
         case _:
             raise AssertionError(f"unhandled expr type: {type(expr).__name__}")
 
