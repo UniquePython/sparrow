@@ -90,16 +90,6 @@ def evaluate(node: Expr, env: Environment) -> Value:
                 exprValue = evaluate(expr, env)
                 exprValues.append(exprValue)
 
-            exprValuesLen = len(exprValues)
-            paramsLen = len(funcValue.params)
-
-            if paramsLen != exprValuesLen:
-                raise SparrowRuntimeError(
-                    f"Function {name} expects {paramsLen} arguments but only {exprValuesLen} were provided",
-                    start=start,
-                    end=end,
-                )
-
             funcEnv = Environment(parent=funcValue.closure)
 
             for param, exprValue in zip(funcValue.params, exprValues):
