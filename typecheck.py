@@ -12,7 +12,7 @@ from ast_node import (
 )
 from errors import SparrowTypeError
 from type_environment import TypeEnvironment
-from types_ import BoolType, FuncType, IntType, Type
+from types_ import Bool, Func, Int, Type
 
 BINARY_ARITHMETIC_OPS = {
     BinaryOp.ADD,
@@ -36,23 +36,23 @@ UNARY_LOGICAL_OPS = {UnaryOp.NOT}
 def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
     match expr:
         case NumberLiteral():
-            return IntType()
+            return Int
 
         case BoolLiteral():
-            return BoolType()
+            return Bool
 
         case BinaryExpr(left=left, operator=operator, right=right):
             lhsType = checkExpr(left, env)
             rhsType = checkExpr(right, env)
 
-            if type(lhsType) not in {IntType, BoolType}:
+            if lhsType not in {Int, Bool}:
                 raise SparrowTypeError(
                     f"Expected 'Int/Bool', found {lhsType!r} instead",
                     left.start,
                     left.end,
                 )
 
-            if type(rhsType) not in {IntType, BoolType}:
+            if rhsType not in {Int, Bool}:
                 raise SparrowTypeError(
                     f"Expected 'Int/Bool', found {rhsType!r} instead",
                     right.start,
@@ -67,9 +67,9 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
                 )
 
             if operator in BINARY_ARITHMETIC_OPS:
-                return IntType() if isinstance(lhsType, IntType) else BoolType()
+                return Int if lhsType is Int else Bool
             elif operator in BINARY_COMPARISON_OPS:
-                return BoolType()
+                return Bool
             else:
                 raise AssertionError(f"unhandled operator type {operator.name}")
 
@@ -77,21 +77,21 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
             operandType = checkExpr(operand, env)
 
             if operator in UNARY_ARITHMETIC_OPS:
-                if type(operandType) is not IntType:
+                if operandType is not Int:
                     raise SparrowTypeError(
                         f"Expected 'Int', found {operandType!r} instead",
                         operand.start,
                         operand.end,
                     )
-                return IntType()
+                return Int
             elif operator in UNARY_LOGICAL_OPS:
-                if type(operandType) is not BoolType:
+                if operandType is not Bool:
                     raise SparrowTypeError(
                         f"Expected 'Bool', found {operandType!r} instead",
                         operand.start,
                         operand.end,
                     )
-                return BoolType()
+                return Bool
             else:
                 raise AssertionError(f"unhandled operator type {operator.name}")
 
@@ -101,7 +101,7 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
         case FuncCallExpr(name=name, args=args, start=start, end=end):
             funcType = env.type(name, start, end)
 
-            if type(funcType) is not FuncType:
+            if funcType is not Func:
                 raise SparrowTypeError(
                     f"Cannot call {env.symbolStr(funcType).lower()} {name!r} like a function",
                     start,

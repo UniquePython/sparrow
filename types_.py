@@ -30,3 +30,9 @@ class FuncType:
     def __repr__(self) -> str:
         params = ", ".join(str(p) for p in self.paramTypes)
         return f"({params}) -> {self.returnType}"
+
+
+Int = IntType()
+Bool = BoolType()
+Nothing = NothingType()
+Func = FuncType()
