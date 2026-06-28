@@ -114,7 +114,7 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
         case FuncCallExpr(name=name, args=args, start=start, end=end):
             funcType = env.type(name, start, end)
 
-            if type(funcType) is not FuncType:
+            if not isinstance(funcType, FuncType):
                 raise SparrowTypeError(
                     f"Cannot call {env.symbolStr(funcType).lower()} {name!r} like a function",
                     start,
