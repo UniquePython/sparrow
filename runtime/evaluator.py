@@ -1,7 +1,7 @@
 from typing import Optional
 
 import operators.ops as ops
-from errors import ReturnSignal, SkipSignal, SparrowRuntimeError, StopSignal
+from errors import SparrowRuntimeError
 from frontend.ast import (
     AssignStmt,
     BinaryExpr,
@@ -26,6 +26,7 @@ from frontend.ast import (
 )
 from runtime.environment import Environment
 from runtime.values import BoolValue, FuncValue, IntValue, Value
+from signals import ReturnSignal, SkipSignal, StopSignal
 
 BINARY_OPS = {
     BinaryOp.ADD: ops.add,
