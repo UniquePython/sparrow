@@ -1,4 +1,4 @@
-from errors import SparrowTypeError
+from errors import SparrowTypeError, suggestClosest
 from semantic.types_ import Bool, Int, Nothing, Type
 
 
@@ -14,7 +14,9 @@ class TypeRegistry:
         if name in self.symbols:
             return self.symbols[name]
         else:
-            raise SparrowTypeError(f"Unknown type {name}", start, end)
+            suggestion = suggestClosest(name, list(self.symbols.keys()))
+            extra = f". {suggestion}" if suggestion is not None else ""
+            raise SparrowTypeError(f"Unknown type {name!r}{extra}", start, end)
 
 
 Registry = TypeRegistry()
