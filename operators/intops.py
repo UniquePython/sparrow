@@ -13,6 +13,10 @@ def mul(a: IntValue, b: IntValue) -> IntValue:
     return IntValue(a.value * b.value)
 
 
+def exp(a: IntValue, b: IntValue) -> IntValue:
+    return IntValue(a.value**b.value)
+
+
 def div(a: IntValue, b: IntValue) -> IntValue:
     return IntValue(int(a.value / b.value))
 
@@ -47,3 +51,7 @@ def gt(a: IntValue, b: IntValue) -> BoolValue:
 
 def ge(a: IntValue, b: IntValue) -> BoolValue:
     return BoolValue(a.value >= b.value)
+
+
+def lxor(a: IntValue, b: IntValue) -> IntValue:
+    return IntValue(a.value ^ b.value)

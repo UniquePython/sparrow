@@ -32,6 +32,7 @@ BINARY_OPS = {
     BinaryOp.ADD: ops.add,
     BinaryOp.SUB: ops.sub,
     BinaryOp.MUL: ops.mul,
+    BinaryOp.EXP: ops.exp,
     BinaryOp.DIV: ops.div,
     BinaryOp.MOD: ops.mod,
     BinaryOp.EQEQ: ops.eqeq,
@@ -40,6 +41,9 @@ BINARY_OPS = {
     BinaryOp.LE: ops.le,
     BinaryOp.GT: ops.gt,
     BinaryOp.GE: ops.ge,
+    BinaryOp.AND: ops.land,
+    BinaryOp.OR: ops.lor,
+    BinaryOp.XOR: ops.lxor,
 }
 
 UNARY_OPS = {
@@ -70,6 +74,20 @@ def evaluate(node: Expr, env: Environment) -> Value:
                 if isinstance(rhs, BoolValue) and not rhs.value:
                     raise SparrowRuntimeError(
                         "Cannot divide by false",
+                        right.start,
+                        right.end,
+                    )
+
+            if operator == BinaryOp.EXP:
+                if isinstance(rhs, IntValue) and rhs.value < 0:
+                    raise SparrowRuntimeError(
+                        "Cannot have negative value in the exponent",
+                        right.start,
+                        right.end,
+                    )
+                if isinstance(rhs, BoolValue) and not rhs.value:
+                    raise SparrowRuntimeError(
+                        "Cannot raise 'false' to the power of 'false'",
                         right.start,
                         right.end,
                     )

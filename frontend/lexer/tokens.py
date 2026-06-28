@@ -6,6 +6,7 @@ class TokenKind(Enum):
     PLUS = auto()
     MINUS = auto()
     ASTERISK = auto()
+    EXP = auto()
     FSLASH = auto()
     PERCENT = auto()
     LPAREN = auto()
@@ -16,6 +17,9 @@ class TokenKind(Enum):
     EQ = auto()
     EQEQ = auto()
     NOT = auto()
+    AND = auto()
+    OR = auto()
+    XOR = auto()
     NEQ = auto()
     LT = auto()
     LE = auto()
@@ -60,9 +64,9 @@ class Token:
 SINGLE_CHAR_TOKENS = {
     "+": TokenKind.PLUS,
     "-": TokenKind.MINUS,
-    "*": TokenKind.ASTERISK,
     "/": TokenKind.FSLASH,
     "%": TokenKind.PERCENT,
+    "^": TokenKind.XOR,
     "(": TokenKind.LPAREN,
     ")": TokenKind.RPAREN,
     "{": TokenKind.LBRACE,
@@ -72,6 +76,8 @@ SINGLE_CHAR_TOKENS = {
 }
 
 LOOKAHEAD_TOKENS = {
+    "*": TokenKind.ASTERISK,
+    "**": TokenKind.EXP,
     "=": TokenKind.EQ,
     "==": TokenKind.EQEQ,
     "<": TokenKind.LT,
@@ -79,6 +85,8 @@ LOOKAHEAD_TOKENS = {
     ">": TokenKind.GT,
     ">=": TokenKind.GE,
     "!": TokenKind.NOT,
+    "&&": TokenKind.AND,
+    "||": TokenKind.OR,
     "!=": TokenKind.NEQ,
 }
 
@@ -106,6 +114,7 @@ TOKEN_DISPLAY = {
     TokenKind.PLUS: "+",
     TokenKind.MINUS: "-",
     TokenKind.ASTERISK: "*",
+    TokenKind.EXP: "**",
     TokenKind.FSLASH: "/",
     TokenKind.PERCENT: "%",
     TokenKind.LPAREN: "(",
@@ -118,6 +127,9 @@ TOKEN_DISPLAY = {
     TokenKind.GT: ">",
     TokenKind.EQEQ: "==",
     TokenKind.NOT: "!",
+    TokenKind.AND: "&&",
+    TokenKind.OR: "||",
+    TokenKind.XOR: "^",
     TokenKind.NEQ: "!=",
     TokenKind.LE: "<=",
     TokenKind.GE: ">=",

@@ -24,6 +24,13 @@ def mul(a: IntValue | BoolValue, b: IntValue | BoolValue) -> IntValue:
         return intops.mul(a, b)
 
 
+def exp(a: IntValue | BoolValue, b: IntValue | BoolValue) -> IntValue:
+    if isinstance(a, BoolValue):
+        return boolops.exp(a, b)
+    else:
+        return intops.exp(a, b)
+
+
 def div(a: IntValue | BoolValue, b: IntValue | BoolValue) -> IntValue:
     if isinstance(a, BoolValue):
         return boolops.div(a, b)
@@ -44,6 +51,21 @@ def neg(x: IntValue) -> IntValue:
 
 def lnot(x: BoolValue) -> BoolValue:
     return boolops.lnot(x)
+
+
+def land(a: BoolValue, b: BoolValue) -> BoolValue:
+    return boolops.land(a, b)
+
+
+def lor(a: BoolValue, b: BoolValue) -> BoolValue:
+    return boolops.lor(a, b)
+
+
+def lxor(a: IntValue | BoolValue, b: IntValue | BoolValue) -> IntValue | BoolValue:
+    if isinstance(a, BoolValue):
+        return boolops.lxor(a, b)
+    else:
+        return intops.lxor(a, b)
 
 
 def eqeq(a: IntValue | BoolValue, b: IntValue | BoolValue) -> BoolValue:

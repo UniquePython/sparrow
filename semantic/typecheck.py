@@ -30,6 +30,7 @@ from semantic.types_ import Bool, FuncType, Int, Nothing, Type
 BINARY_ARITHMETIC_OPS = {
     BinaryOp.ADD,
     BinaryOp.SUB,
+    BinaryOp.EXP,
     BinaryOp.MUL,
     BinaryOp.DIV,
     BinaryOp.MOD,
@@ -41,7 +42,9 @@ BINARY_COMPARISON_OPS = {
     BinaryOp.LE,
     BinaryOp.GT,
     BinaryOp.GE,
+    BinaryOp.XOR,
 }
+BINARY_LOGICAL_OPS = {BinaryOp.AND, BinaryOp.OR}
 UNARY_ARITHMETIC_OPS = {UnaryOp.NEG}
 UNARY_LOGICAL_OPS = {UnaryOp.NOT}
 
@@ -82,6 +85,20 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
             if operator in BINARY_ARITHMETIC_OPS:
                 return Int if lhsType == Int else Bool
             elif operator in BINARY_COMPARISON_OPS:
+                return Bool
+            elif operator in BINARY_LOGICAL_OPS:
+                if lhsType != Bool:
+                    raise SparrowTypeError(
+                        f"Expected 'Bool', found {lhsType!r} instead",
+                        left.start,
+                        left.end,
+                    )
+                if rhsType != Bool:
+                    raise SparrowTypeError(
+                        f"Expected 'Bool', found {rhsType!r} instead",
+                        right.start,
+                        right.end,
+                    )
                 return Bool
             else:
                 raise AssertionError(f"unhandled operator type {operator.name}")

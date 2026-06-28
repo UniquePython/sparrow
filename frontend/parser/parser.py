@@ -26,25 +26,30 @@ from frontend.ast import (
 from frontend.lexer.tokens import TOKEN_DISPLAY, Token, TokenKind
 
 INFIX_BINDING_POWER = {
-    TokenKind.EQEQ: 1,
-    TokenKind.NEQ: 1,
-    TokenKind.LT: 1,
-    TokenKind.LE: 1,
-    TokenKind.GT: 1,
-    TokenKind.GE: 1,
-    TokenKind.PLUS: 3,
-    TokenKind.MINUS: 3,
-    TokenKind.ASTERISK: 5,
-    TokenKind.FSLASH: 5,
-    TokenKind.PERCENT: 5,
+    TokenKind.OR: 1,
+    TokenKind.AND: 3,
+    TokenKind.XOR: 5,
+    TokenKind.EQEQ: 7,
+    TokenKind.NEQ: 7,
+    TokenKind.LT: 7,
+    TokenKind.LE: 7,
+    TokenKind.GT: 7,
+    TokenKind.GE: 7,
+    TokenKind.PLUS: 9,
+    TokenKind.MINUS: 9,
+    TokenKind.ASTERISK: 11,
+    TokenKind.FSLASH: 11,
+    TokenKind.PERCENT: 11,
+    TokenKind.EXP: 13,
 }
 
-PREFIX_BINDING_POWER = {TokenKind.MINUS: 7, TokenKind.NOT: 7}
+PREFIX_BINDING_POWER = {TokenKind.MINUS: 15, TokenKind.NOT: 15}
 
 TOKEN_TO_BINARY_OP = {
     TokenKind.PLUS: BinaryOp.ADD,
     TokenKind.MINUS: BinaryOp.SUB,
     TokenKind.ASTERISK: BinaryOp.MUL,
+    TokenKind.EXP: BinaryOp.EXP,
     TokenKind.FSLASH: BinaryOp.DIV,
     TokenKind.PERCENT: BinaryOp.MOD,
     TokenKind.EQEQ: BinaryOp.EQEQ,
@@ -53,6 +58,9 @@ TOKEN_TO_BINARY_OP = {
     TokenKind.LE: BinaryOp.LE,
     TokenKind.GT: BinaryOp.GT,
     TokenKind.GE: BinaryOp.GE,
+    TokenKind.AND: BinaryOp.AND,
+    TokenKind.OR: BinaryOp.OR,
+    TokenKind.XOR: BinaryOp.XOR,
 }
 
 TOKEN_TO_UNARY_OP = {

@@ -22,6 +22,12 @@ def mul(a: BoolValue, b: BoolValue) -> BoolValue:
     return BoolValue(INT_TO_BOOL[(aInt * bInt) % 2])
 
 
+def exp(a: BoolValue, b: BoolValue) -> BoolValue:
+    aInt = BOOL_TO_INT[a.value]
+    bInt = BOOL_TO_INT[b.value]
+    return BoolValue(INT_TO_BOOL[(aInt**bInt) % 2])
+
+
 # b is guaranteed true here, division is identity
 def div(a: BoolValue, b: BoolValue) -> BoolValue:
     return a
@@ -36,6 +42,20 @@ def mod(a: BoolValue, b: BoolValue) -> BoolValue:
 
 def lnot(x: BoolValue) -> BoolValue:
     return BoolValue(not x.value)
+
+
+def land(a: BoolValue, b: BoolValue) -> BoolValue:
+    return BoolValue(a.value and b.value)
+
+
+def lor(a: BoolValue, b: BoolValue) -> BoolValue:
+    return BoolValue(a.value or b.value)
+
+
+def lxor(a: BoolValue, b: BoolValue) -> BoolValue:
+    aInt = BOOL_TO_INT[a.value]
+    bInt = BOOL_TO_INT[b.value]
+    return BoolValue(INT_TO_BOOL[(aInt ^ bInt) % 2])
 
 
 def eqeq(a: BoolValue, b: BoolValue) -> BoolValue:

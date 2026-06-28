@@ -7,6 +7,7 @@ class BinaryOp(Enum):
     ADD = auto()
     SUB = auto()
     MUL = auto()
+    EXP = auto()
     DIV = auto()
     MOD = auto()
     EQEQ = auto()
@@ -15,6 +16,9 @@ class BinaryOp(Enum):
     LE = auto()
     GT = auto()
     GE = auto()
+    AND = auto()
+    OR = auto()
+    XOR = auto()
 
 
 class UnaryOp(Enum):
