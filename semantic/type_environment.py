@@ -1,6 +1,6 @@
 from typing import Optional
 
-from errors import SparrowRuntimeError
+from errors import SparrowTypeError
 from semantic.types_ import BoolType, FuncType, IntType, NothingType, Type
 
 
@@ -29,7 +29,7 @@ class TypeEnvironment:
 
     def declare(self, name: str, type: Type, start: int, end: int) -> None:
         if name in self.symbols:
-            raise SparrowRuntimeError(
+            raise SparrowTypeError(
                 f"{self.symbolStr(type)} {name!r} is already declared in this scope",
                 start,
                 end,
@@ -43,7 +43,7 @@ class TypeEnvironment:
         elif self.parent is not None:
             return self.parent.type(name, start, end)
         else:
-            raise SparrowRuntimeError(
+            raise SparrowTypeError(
                 f"Failed to access undeclared symbol {name!r}",
                 start,
                 end,
