@@ -24,7 +24,7 @@ class Environment:
                 end,
             )
 
-        self.vars[name] = (type, value)
+        self.vars[name] = value
 
     def assign(self, name: str, value: Value, start: int, end: int) -> None:
         if name in self.vars:
