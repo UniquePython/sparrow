@@ -94,9 +94,7 @@ def evaluate(node: Expr, env: Environment) -> Value:
             funcEnv = Environment(parent=funcValue.closure)
 
             for param, exprValue in zip(funcValue.params, exprValues):
-                funcEnv.declare(
-                    param.name, param.type, exprValue, param.start, param.end
-                )
+                funcEnv.declare(param.name, exprValue, param.start, param.end)
 
             try:
                 for stmt in funcValue.body:
@@ -117,7 +115,7 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
 
         case VarDeclStmt(type=type, name=name, value=value, start=start, end=end):
             result = evaluate(value, env)
-            env.declare(name, type, result, start, end)
+            env.declare(name, result, start, end)
 
         case FuncDeclStmt(
             name=name,
@@ -130,7 +128,7 @@ def execute(stmt: Stmt, env: Environment) -> Optional[Value]:
             funcValue = FuncValue(
                 params=params, returnType=returnType, body=body, closure=env
             )
-            env.declare(name, "function", funcValue, start, end)
+            env.declare(name, funcValue, start, end)
 
         case ReturnStmt(value=value, start=start, end=end):
             val = None

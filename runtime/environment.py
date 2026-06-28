@@ -7,7 +7,7 @@ from runtime.values import Value
 class Environment:
     def __init__(self, parent: Optional["Environment"] = None):
         self.parent = parent
-        self.vars: dict[str, tuple[str, Value]] = {}
+        self.vars: dict[str, Value] = {}
 
     def exists(self, name: str) -> bool:
         if name in self.vars:
@@ -16,7 +16,7 @@ class Environment:
             return self.parent.exists(name)
         return False
 
-    def declare(self, name: str, type: str, value: Value, start: int, end: int) -> None:
+    def declare(self, name: str, value: Value, start: int, end: int) -> None:
         if name in self.vars:
             raise SparrowRuntimeError(
                 f"Variable {name!r} is already declared in this scope",
@@ -28,7 +28,7 @@ class Environment:
 
     def assign(self, name: str, value: Value, start: int, end: int) -> None:
         if name in self.vars:
-            self.vars[name] = (self.vars[name][0], value)
+            self.vars[name] = value
         elif self.parent is not None:
             self.parent.assign(name, value, start, end)
         else:
@@ -36,19 +36,9 @@ class Environment:
                 f"Cannot assign to undeclared variable {name!r}", start, end
             )
 
-    def type(self, name: str, start: int, end: int) -> str:
-        if name in self.vars:
-            return self.vars[name][0]
-        elif self.parent is not None:
-            return self.parent.type(name, start, end)
-        else:
-            raise SparrowRuntimeError(
-                f"Failed to access undeclared variable {name!r}", start, end
-            )
-
     def value(self, name: str, start: int, end: int) -> Value:
         if name in self.vars:
-            return self.vars[name][1]
+            return self.vars[name]
         elif self.parent is not None:
             return self.parent.value(name, start, end)
         else:
