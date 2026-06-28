@@ -1,29 +1,30 @@
 from dataclasses import dataclass
-from typing import Union
 
-Type = Union["IntType", "BoolType", "NothingType", "FuncType"]
+
+class Type:
+    pass
 
 
 @dataclass(frozen=True)
-class IntType:
+class IntType(Type):
     def __repr__(self) -> str:
         return "Int"
 
 
 @dataclass(frozen=True)
-class BoolType:
+class BoolType(Type):
     def __repr__(self) -> str:
         return "Bool"
 
 
 @dataclass(frozen=True)
-class NothingType:
+class NothingType(Type):
     def __repr__(self) -> str:
         return "Nothing"
 
 
 @dataclass(frozen=True)
-class FuncType:
+class FuncType(Type):
     paramTypes: tuple[Type, ...]
     returnType: Type
 

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Optional, Union
+from typing import Optional
 
 
 class BinaryOp(Enum):
@@ -22,32 +22,26 @@ class UnaryOp(Enum):
     NOT = auto()
 
 
-Expr = Union[
-    "NumberLiteral",
-    "BoolLiteral",
-    "BinaryExpr",
-    "UnaryExpr",
-    "IdentifierExpr",
-    "FuncCallExpr",
-]
+class Expr:
+    pass
 
 
 @dataclass(frozen=True)
-class NumberLiteral:
+class NumberLiteral(Expr):
     value: int
     start: int
     end: int
 
 
 @dataclass(frozen=True)
-class BoolLiteral:
+class BoolLiteral(Expr):
     value: bool
     start: int
     end: int
 
 
 @dataclass(frozen=True)
-class BinaryExpr:
+class BinaryExpr(Expr):
     operator: BinaryOp
     left: Expr
     right: Expr
@@ -56,7 +50,7 @@ class BinaryExpr:
 
 
 @dataclass(frozen=True)
-class UnaryExpr:
+class UnaryExpr(Expr):
     operator: UnaryOp
     operand: Expr
     start: int
@@ -64,36 +58,26 @@ class UnaryExpr:
 
 
 @dataclass(frozen=True)
-class IdentifierExpr:
+class IdentifierExpr(Expr):
     name: str
     start: int
     end: int
 
 
 @dataclass(frozen=True)
-class FuncCallExpr:
+class FuncCallExpr(Expr):
     name: str
     args: tuple[Expr, ...]
     start: int
     end: int
 
 
-Stmt = Union[
-    "AssignStmt",
-    "ExprStmt",
-    "IfStmt",
-    "WhileStmt",
-    "RepeatStmt",
-    "StopStmt",
-    "SkipStmt",
-    "VarDeclStmt",
-    "FuncDeclStmt",
-    "ReturnStmt",
-]
+class Stmt:
+    pass
 
 
 @dataclass(frozen=True)
-class AssignStmt:
+class AssignStmt(Stmt):
     name: str
     value: Expr
     start: int
@@ -101,7 +85,7 @@ class AssignStmt:
 
 
 @dataclass(frozen=True)
-class VarDeclStmt:
+class VarDeclStmt(Stmt):
     type: str
     name: str
     value: Expr
@@ -118,7 +102,7 @@ class Param:
 
 
 @dataclass(frozen=True)
-class FuncDeclStmt:
+class FuncDeclStmt(Stmt):
     name: str
     params: tuple[Param, ...]
     returnType: str
@@ -128,14 +112,14 @@ class FuncDeclStmt:
 
 
 @dataclass(frozen=True)
-class ReturnStmt:
+class ReturnStmt(Stmt):
     value: Optional[Expr]
     start: int
     end: int
 
 
 @dataclass(frozen=True)
-class ExprStmt:
+class ExprStmt(Stmt):
     expr: Expr
     start: int
     end: int
@@ -150,7 +134,7 @@ class ElifClause:
 
 
 @dataclass(frozen=True)
-class IfStmt:
+class IfStmt(Stmt):
     condition: Expr
     ifBody: tuple[Stmt, ...]
     elifClauses: Optional[tuple[ElifClause, ...]]
@@ -160,7 +144,7 @@ class IfStmt:
 
 
 @dataclass(frozen=True)
-class WhileStmt:
+class WhileStmt(Stmt):
     condition: Expr
     body: tuple[Stmt, ...]
     onstop: Optional[tuple[Stmt, ...]]
@@ -170,7 +154,7 @@ class WhileStmt:
 
 
 @dataclass(frozen=True)
-class RepeatStmt:
+class RepeatStmt(Stmt):
     ntimes: Expr
     body: tuple[Stmt, ...]
     onstop: Optional[tuple[Stmt, ...]]
@@ -180,12 +164,12 @@ class RepeatStmt:
 
 
 @dataclass(frozen=True)
-class StopStmt:
+class StopStmt(Stmt):
     start: int
     end: int
 
 
 @dataclass(frozen=True)
-class SkipStmt:
+class SkipStmt(Stmt):
     start: int
     end: int
