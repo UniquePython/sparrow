@@ -128,9 +128,3 @@ def formatError(err: SparrowError, src: str, lineStarts: list[int]) -> str:
     errMsg += "\n".join(rows)
 
     return errMsg
-
-
-if __name__ == "__main__":
-    src = "1 +\n2 *\n(3)"
-    print(offsetToLineCol(src, 2))
-    print(offsetToLineCol(src, 9))

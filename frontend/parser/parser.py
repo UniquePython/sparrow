@@ -527,10 +527,3 @@ def parseProgram(tokens: list[Token]) -> list[Stmt]:
     while parser.peekTokenKind() != TokenKind.EOF:
         statements.append(parser.parseStatement())
     return statements
-
-
-if __name__ == "__main__":
-    from frontend.lexer.tokenizer import tokenize
-    from frontend.parser.debug import pretty
-
-    pretty(parseProgram(tokenize("x + 1;")))

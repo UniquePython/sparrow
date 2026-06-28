@@ -82,9 +82,3 @@ def tokenize(src: str) -> list[Token]:
 
     tokens.append(Token(TokenKind.EOF, None, cursor, cursor))
     return tokens
-
-
-if __name__ == "__main__":
-    toks = tokenize("== != <= >= = ! < >")
-    for tok in toks:
-        print(tok)
