@@ -42,25 +42,39 @@ def offsetToLineCol(lineStarts: list[int], offset: int) -> tuple[int, int]:
 
 
 def formatError(err: SparrowError, src: str, lineStarts: list[int]) -> str:
-    line, col = offsetToLineCol(lineStarts, err.start)
+    startLine, startCol = offsetToLineCol(lineStarts, err.start)
+    endLine, endCol = offsetToLineCol(lineStarts, err.end)
 
-    code = src.splitlines()[line - 1]
-
-    nCarets = max(1, err.end - err.start)
-    gutterWidth = len(str(line))
-
+    lines = src.splitlines()
+    gutterWidth = len(str(endLine))
     blankGutter = f"{'':>{gutterWidth}} | "
-    codeGutter = f"{line:>{gutterWidth}} | {code}"
-    caretGutter = blankGutter + " " * (col - 1)
 
     errMsg = ""
-
     errMsg += f"error: {err.message}\n"
-    errMsg += f"---> line {line}, col {col}\n"
-
+    errMsg += f"---> line {startLine}, col {startCol}\n"
     errMsg += blankGutter + "\n"
-    errMsg += codeGutter + "\n"
-    errMsg += caretGutter + "^" * nCarets
+
+    rows = []
+    for lineNum in range(startLine, endLine + 1):
+        code = lines[lineNum - 1]
+
+        caretStartCol = 1
+        caretEndCol = len(code) + 1
+
+        if lineNum == startLine:
+            caretStartCol = startCol
+        if lineNum == endLine:
+            caretEndCol = endCol
+
+        nCarets = max(1, caretEndCol - caretStartCol)
+
+        codeGutter = f"{lineNum:>{gutterWidth}} | {code}"
+        caretGutter = blankGutter + " " * (caretStartCol - 1)
+
+        rows.append(codeGutter)
+        rows.append(caretGutter + "^" * nCarets)
+
+    errMsg += "\n".join(rows)
 
     return errMsg
 
