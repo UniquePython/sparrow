@@ -148,7 +148,7 @@ def checkExpr(expr: Expr, env: TypeEnvironment) -> Type:
 
 
 def checkBlock(
-    block: list[Stmt],
+    block: tuple[Stmt, ...],
     parentEnv: TypeEnvironment,
     expectedReturnType: Optional[Type],
     insideLoop: bool,
