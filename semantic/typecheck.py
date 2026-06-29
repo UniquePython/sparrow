@@ -185,21 +185,6 @@ def checkCondition(condition: Expr, expectedType: Type, env: TypeEnvironment) ->
         )
 
 
-def alwaysReturns(stmts: tuple[Stmt, ...]) -> bool:
-    for stmt in stmts:
-        if isinstance(stmt, ReturnStmt):
-            return True
-        elif isinstance(stmt, IfStmt):
-            if (
-                stmt.elseBody is not None
-                and alwaysReturns(stmt.ifBody)
-                and alwaysReturns(stmt.elseBody)
-                and all(alwaysReturns(clause.body) for clause in stmt.elifClauses)
-            ):
-                return True
-    return False
-
-
 def checkStmt(
     stmt: Stmt,
     env: TypeEnvironment,
@@ -265,16 +250,6 @@ def checkStmt(
 
             for stmt in body:
                 checkStmt(stmt, funcEnv, False, returnTypeResolved)
-
-            if returnTypeResolved != Nothing and not alwaysReturns(body):
-                spanStart, spanEnd = start, end
-                if len(body) > 0:
-                    spanStart, spanEnd = body[-1].start, body[-1].end
-                raise SparrowTypeError(
-                    f"Function '{name}' does not always return a value",
-                    spanStart,
-                    spanEnd,
-                )
 
         case ReturnStmt(value=value, start=start, end=end):
             if expectedReturnType is None:
